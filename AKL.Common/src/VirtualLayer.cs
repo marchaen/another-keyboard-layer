@@ -3,19 +3,13 @@ namespace AKL.Common;
 public class VirtualLayer
 {
 
-    private AklConfiguration configuration;
+    private AklConfigurationProvider configurationProvider;
+    public AklConfiguration Configuration { get; set; }
 
-    public bool Autostart { get; set; }
-
-    public Key SwitchKey { get; set; }
-    public KeyCombination? DefaultCombination { get; set; }
-
-    public Dictionary<KeyCombination, KeyCombination> Mappings { get; set; } = new Dictionary<KeyCombination, KeyCombination>();
-
-    public VirtualLayer(AklConfiguration configuration, Key switchKey)
+    public VirtualLayer(AklConfigurationProvider configurationProvider)
     {
-        this.configuration = configuration;
-        SwitchKey = switchKey;
+        this.configurationProvider = configurationProvider;
+        Configuration = configurationProvider.GetConfiguration();
     }
 
     public void Update()

@@ -1,40 +1,47 @@
 namespace AKL.Common;
 
+using Tomlyn.Model;
+
 public class AklConfiguration
 {
 
-    private FileInfo file;
-    // TODO: Add toml library to project and correct field in this class
+    private TomlAklConfiguration origin;
 
-    private VirtualLayer? layer;
+    public bool Autostart { get; set; }
 
-    private AklConfiguration(FileInfo file)
+    public Key SwitchKey { get; set; }
+    public KeyCombination? DefaultCombination { get; set; }
+
+    public Dictionary<KeyCombination, KeyCombination> Mappings { get; set; } = new Dictionary<KeyCombination, KeyCombination>();
+
+    public static AklConfiguration FromString(string raw)
     {
-        this.file = file;
+        return new AklConfiguration(new TomlAklConfiguration());
     }
 
-    public static AklConfiguration ReadFromFile(FileInfo file)
+    private AklConfiguration(TomlAklConfiguration origin)
     {
-        // TODO: Implement configuration parsing
-        return new AklConfiguration(file);
+        this.origin = origin;
+        SwitchKey = new Key();
     }
 
-    public static AklConfiguration WithSaveDefault(FileInfo output)
+    public override string ToString()
     {
-        // TODO: Implement default configuration parsing and saving to the
-        // output file
-        return new AklConfiguration(output);
+        return "";
     }
 
-    public VirtualLayer TryParse()
-    {
-        // TODO: Create a new virtual layer from the parsed raw config.
-        return new VirtualLayer(this, new Key());
-    }
+}
 
-    public void SaveToFile()
-    {
-        // TODO: Implement toml to file configuration
-    }
+internal class TomlAklConfiguration : ITomlMetadataProvider
+{
+
+    public bool StartWithSystem { get; set; }
+    public string? SwitchKey { get; set; }
+    public string? DefaultSimulationCombination { get; set; }
+    public Dictionary<String, String>? Mappings { get; set; }
+
+    // Storage for comments in the configuration file so that they can be saved
+    // back to file when the in memory configuration gets updated.
+    TomlPropertiesMetadata? ITomlMetadataProvider.PropertiesMetadata { get; set; }
 
 }

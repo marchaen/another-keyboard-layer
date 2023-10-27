@@ -143,28 +143,37 @@ end note
 KeyCombination o-- Key
 
 class VirtualLayer {
+    {field} -AklConfigurationProvider configurationProvider
     {field} -AklConfiguration configuration
-    {field} +bool Autostart
-    {field} +Key SwitchKey
-    {field} +KeyCombination? DefaultCombination
-    {field} +Dictionary<KeyCombination, KeyCombination> Mappings
     {method} +Update()
 }
 
 VirtualLayer o- KeyCombination
 VirtualLayer o- Key
 
-class AklConfiguration {
+class AklConfigurationProvider {
     {field} -FileInfo file
-    {field} -Toml configuration
-    {field} -VirtualLayer? layer
-    {static} {method} +AklConfiguration ReadFromFile(FileInfo file)
-    {static} {method} +AklConfiguration WithSaveDefault(FileInfo output)
-    {method} +VirtualLayer TryParse()
+    {field} -AklConfiguration configuration
+    {static} {method} +AklConfigurationProvider ReadFromFile(FileInfo file)
+    {static} {method} +AklConfigurationProvider WithSaveDefault(FileInfo output)
     {method} +void SaveToFile()
 }
 
-VirtualLayer -- AklConfiguration
+AklConfigurationProvider - VirtualLayer
+
+class AklConfiguration {
+    {field} -TomlAklConfiguration origin;
+    {field} +bool Autostart
+    {field} +Key SwitchKey
+    {field} +KeyCombination? DefaultCombination
+    {field} +Dictionary<KeyCombination, KeyCombination> Mappings
+}
+
+note left of AklConfiguration::TomlAklConfiguration
+Internes Model für die De-/Serialization in Toml mit Tomlyn.
+end note
+
+AklConfigurationProvider -- AklConfiguration
 
 @enduml
 ....
