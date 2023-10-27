@@ -2,7 +2,10 @@ namespace AKL.Cli;
 
 using System.Runtime.InteropServices;
 
-// See https://stackoverflow.com/a/3571628
+/// <summary>
+///     Provides a single method to hide the console window.
+/// </summary>
+/// <seealso cref="Execute()"/>
 public class ConsoleWindowHider {
 
     // https://learn.microsoft.com/en-us/windows/console/getconsolewindow
@@ -15,6 +18,11 @@ public class ConsoleWindowHider {
 
     const int SW_HIDE = 0;
 
+    /// <summary>
+    ///     Hides the console host of this command line application if it is
+    ///     currently visible.
+    /// </summary>
+    /// <seealso href="https://stackoverflow.com/a/3571628"/>
     public static void Execute() {
         ShowWindow(GetConsoleWindow(), SW_HIDE);
     }
