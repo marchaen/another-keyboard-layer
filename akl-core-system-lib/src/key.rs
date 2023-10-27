@@ -37,7 +37,7 @@ impl From<VirtualKey> for Key {
 #[derive(Debug, Clone, Copy, PartialOrd, Ord)]
 pub struct KeyCombination(Key, Option<Key>, Option<Key>, Option<Key>);
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq, Eq)]
 pub enum KeyCombinationConversionError {
     #[error("Each key combination has to start with one valid key.")]
     NotEnoughKeys,
@@ -67,12 +67,16 @@ impl TryFrom<&[Option<Key>]> for KeyCombination {
     type Error = KeyCombinationConversionError;
 
     fn try_from(value: &[Option<Key>]) -> Result<Self, Self::Error> {
-        if value.is_empty() || value[0].is_none() {
+        if value.is_empty() {
             return Err(KeyCombinationConversionError::NotEnoughKeys);
         }
 
         if value.len() > 4 {
             return Err(KeyCombinationConversionError::TooManyKeys);
+        }
+
+        if value[0].is_none() {
+            return Err(KeyCombinationConversionError::NotEnoughKeys);
         }
 
         // Used to filter any none values even if they are at the end of the
@@ -133,7 +137,7 @@ macro_rules! define_virtual_key_codes {
             $($name,)*
         }
 
-        #[derive(Error, Debug)]
+        #[derive(Error, Debug, PartialEq, Eq)]
         #[non_exhaustive]
         pub enum VirtualKeyConversionError {
             #[error("No virtual key with the specified name exists.")]
@@ -300,3 +304,139 @@ define_virtual_key_codes!(
     Play = 0xfa,
     Zoom = 0xfb,
 );
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::hash_map::DefaultHasher, hash::Hasher};
+
+    #[cfg(target_os = "windows")]
+    use windows::Win32::UI::Input::KeyboardAndMouse::VK_TAB;
+
+    use super::*;
+
+    // Static key constants that are guaranteed to be valid
+    const KEY_A: Key = Key::Text('a');
+    const KEY_B: Key = Key::Text('b');
+    const KEY_ESCAPE: Key = Key::Virtual(VirtualKey::Escape);
+    const KEY_RETURN: Key = Key::Virtual(VirtualKey::Return);
+
+    #[test]
+    fn test_key_conversions() {
+        assert_eq!(Into::<Key>::into('a'), KEY_A);
+        assert_eq!(Into::<Key>::into(VirtualKey::Escape), KEY_ESCAPE);
+    }
+
+    #[test]
+    fn test_key_combination_conversions() {
+        assert_eq!(
+            Err(KeyCombinationConversionError::NotEnoughKeys),
+            TryInto::<KeyCombination>::try_into([].as_slice())
+        );
+
+        assert_eq!(
+            Err(KeyCombinationConversionError::NotEnoughKeys),
+            TryInto::<KeyCombination>::try_into([None].as_slice())
+        );
+
+        assert_eq!(
+            Ok(KeyCombination(KEY_A, None, None, None)),
+            TryInto::<KeyCombination>::try_into([Some(KEY_A)].as_slice())
+        );
+
+        assert_eq!(
+            [Some(KEY_A), Some(KEY_ESCAPE), None, None],
+            Into::<[Option<Key>; 4]>::into(&KeyCombination(
+                KEY_A,
+                Some(KEY_ESCAPE),
+                None,
+                None
+            ))
+        );
+
+        assert_eq!(
+            [Some(KEY_A), Some(KEY_ESCAPE), Some(KEY_B), None],
+            Into::<[Option<Key>; 4]>::into(&KeyCombination(
+                KEY_A,
+                Some(KEY_ESCAPE),
+                Some(KEY_B),
+                None
+            ))
+        );
+
+        assert_eq!(
+            [Some(KEY_A), Some(KEY_ESCAPE), Some(KEY_B), Some(KEY_RETURN)],
+            Into::<[Option<Key>; 4]>::into(&KeyCombination(
+                KEY_A,
+                Some(KEY_ESCAPE),
+                Some(KEY_B),
+                Some(KEY_RETURN)
+            ))
+        );
+
+        assert_eq!(
+            Err(KeyCombinationConversionError::TooManyKeys),
+            TryInto::<KeyCombination>::try_into(
+                [None, None, None, None, None].as_slice()
+            )
+        );
+    }
+
+    #[test]
+    fn test_key_combination_hash_and_eq() {
+        let first_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyCombination(KEY_A, Some(KEY_ESCAPE), Some(KEY_RETURN), None)
+                .hash(&mut hasher);
+            hasher.finish()
+        };
+
+        let second_hash = {
+            let mut hasher = DefaultHasher::new();
+            KeyCombination(KEY_A, Some(KEY_RETURN), Some(KEY_ESCAPE), None)
+                .hash(&mut hasher);
+            hasher.finish()
+        };
+
+        assert_eq!(first_hash, second_hash);
+
+        assert_eq!(
+            KeyCombination(
+                KEY_B,
+                Some(KEY_A),
+                Some(KEY_ESCAPE),
+                Some(KEY_RETURN)
+            ),
+            KeyCombination(
+                KEY_ESCAPE,
+                Some(KEY_B),
+                Some(KEY_RETURN),
+                Some(KEY_A)
+            ),
+        )
+    }
+
+    #[test]
+    fn test_virtual_key_conversion() {
+        assert_eq!(Ok(VirtualKey::Tab), TryInto::<VirtualKey>::try_into("Tab"));
+
+        assert_eq!(
+            Err(VirtualKeyConversionError::NoKeyWithSpecifiedName),
+            TryInto::<VirtualKey>::try_into("")
+        );
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn test_virtual_key_conversion_windows() {
+        assert_eq!(Ok(VirtualKey::Tab), VK_TAB.try_into());
+        assert_eq!(
+            Err(VirtualKeyConversionError::NoKeyWithSpecifiedCode(
+                VIRTUAL_KEY(u16::MAX)
+            )),
+            TryInto::<VirtualKey>::try_into(VIRTUAL_KEY(u16::MAX))
+        );
+
+        assert_eq!(VK_TAB, VirtualKey::Tab.into());
+        assert_eq!(VirtualKey::Tab.to_windows_key(), VK_TAB.0);
+    }
+}
