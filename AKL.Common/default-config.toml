@@ -1,36 +1,50 @@
+# **switch_key**:
+# 
 # Sets the key which should activate the virtual layer so that your mappings are
 # actually invoked when you press the specified target key combination.
 #
 # Following resource lists all possible named keys without the "VK" prefix.
 # https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-# 
-# Note: This program differentiates between "key" and "key combination" by
-# wether a single key or multiple distinct keys on the keyboard are pressed. 
-# Each key combination can't be longer than four keys.
 #
-# For example the following wouldn't be a valid switch-key: "Shift+s"
+# This program differentiates between "key" and "key combination" by wether a 
+# single key or multiple distinct keys on the keyboard are pressed. For example
+# "Shift+s" wouldn't be a valid switch-key.
 #
-# Warning: It also only deals with raw text (additionally to named keys such as
-# "Ctrl", "Shift", "F1", etc.) which means "4" and "$" are not the same
-# combination even though they share the same physical key. So it's possible to
-# define "$" as "Shift+4" however this is strongly discouraged and you should
-# rather use the actual character e. g. "$" wherever possible. The same isn't
-# possible for alphabetic characters because the parser will see the upper case
-# letter and try to find a special / named key with it instead e. g. "F" => 
-# Search for keys that start with "F".
+# Warning: It also only deals with raw keys (additionally to named keys such as
+# "Ctrl", "Shift", "F1", etc.) which means a key combination that is defined
+# with characters that require multiple keys to be pressed at the same time
+# won't be recognized at all. An example would be "$" which you get by pressing
+# "Shift+4" on most keyboard layouts. This likewise applies to all upper case
+# letters (e. g "A", "B", "Ä", "Ö", etc.).
+#
+# There is no way for this application to inherently disallow specific
+# characters such as "$" in a key combination while also staying compatible with
+# most existing keyboard layouts.
 switch_key = "CapsLock"
 
+# **default_simulation_combination**:
+#
 # This key combination will be simulated if you press and release the switch key
 # without invoking any mappings.
+# 
+# Note that each key combination can't be longer than four keys.
 #
 # Can be disabled by setting it to "".
 default_simulation_combination = "Escape"
 
+# **start_with_the_system**:
+#
 # Autostart with the operating system
+#
+# Only supported on windows because of the big amount of different things that
+# can be done on unix systems to autostart and not wanting to impose a specific
+# solution on the users.
 start_with_system = "False"
 
+# **mappings**:
+#
 # All mappings are defined as "target key combination" and "replacement key
-# combination" (The details about key combinations can be found at the top).
+# combination". See **switch_key** for the details about key combinations.
 #
 # Note: All target key combinations are additional to your switch key.
 [mappings]
