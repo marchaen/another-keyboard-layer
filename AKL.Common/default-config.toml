@@ -16,16 +16,13 @@
 # - Back
 # - Return
 # - CapsLock
-# - Shift
 # - LShift
 # - RShift
-# - Control
 # - LControl
 # - RControl
-# - Alt
 # - LAlt
 # - RAlt
-# - LMeta (also known as letft windows key)
+# - LMeta (also known as left windows key)
 # - RMeta (also known as right windows key)
 #
 # Extended keys (usually on the numpad when numlock off is and to the left of it)
@@ -130,13 +127,13 @@
 #
 # This program differentiates between "key" and "key combination" by wether a 
 # single key or multiple distinct keys on the keyboard are pressed. For example
-# "Shift+s" wouldn't be a valid switch-key.
+# "LShift+s" wouldn't be a valid switch-key.
 #
 # Warning: It also only deals with raw keys (additionally to named keys such as
-# "Ctrl", "Shift", "F1", etc.) which means a key combination that is defined
+# "Space", "Tab", "F1", etc.) which means a key combination that is defined
 # with characters that require multiple keys to be pressed at the same time
 # won't be recognized at all. An example would be "$" which you get by pressing
-# "Shift+4" on most keyboard layouts. This likewise applies to all upper case
+# "LShift+4" on most keyboard layouts. This likewise applies to all upper case
 # letters (e. g "A", "B", "Ä", "Ö", etc.).
 #
 # There is no way for this application to inherently disallow specific
@@ -174,6 +171,6 @@ start_with_system = "False"
 "j" = "DownArrow"
 "k" = "UpArrow"
 "l" = "RightArrow"
-"Control+j" = "PageUp"
-"Control+k" = "PageDown"
-"Shift+d" = "Delete"
+"LControl+j" = "PageUp"
+"LControl+k" = "PageDown"
+"LShift+d" = "Delete"

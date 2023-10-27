@@ -250,9 +250,6 @@ define_virtual_key_codes!(
     Tab = 0x09,
     Clear = 0x0c,
     Return = 0x0d,
-    Shift = 0x10,
-    Control = 0x11,
-    Alt = 0x12,
     Pause = 0x13,
     CapsLock = 0x14,
     // Kana key on Japanese and Hangul key on Korean keyboards

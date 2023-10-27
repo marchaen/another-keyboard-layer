@@ -34,11 +34,11 @@ public class KeyTests
     public void ParseKeyCombinations()
     {
         var expectedCombination = new KeyCombination(new Key[] {
-            new Key(VirtualKeyCode.Shift, null, KeyKind.Virtual),
+            new Key(VirtualKeyCode.LShift, null, KeyKind.Virtual),
             new Key(null, 'v', KeyKind.Text)
         });
-        var parsed = KeyCombination.TryParse("Shift+v");
-        var switched = KeyCombination.TryParse("v+Shift");
+        var parsed = KeyCombination.TryParse("LShift+v");
+        var switched = KeyCombination.TryParse("v+LShift");
 
         Assert.AreEqual(expectedCombination, parsed);
         Assert.AreEqual(parsed, switched);
@@ -46,13 +46,13 @@ public class KeyTests
         Assert.AreEqual(parsed.GetHashCode(), switched.GetHashCode());
 
         expectedCombination = new KeyCombination(new Key[] {
-            new Key(VirtualKeyCode.Shift, null, KeyKind.Virtual),
+            new Key(VirtualKeyCode.LShift, null, KeyKind.Virtual),
             new Key(null, 'v', KeyKind.Text),
             new Key(VirtualKeyCode.Space, null, KeyKind.Virtual),
             new Key(null, 'b', KeyKind.Text),
         });
-        parsed = KeyCombination.TryParse("Shift+v+Space+b");
-        switched = KeyCombination.TryParse("Space+v+b+Shift");
+        parsed = KeyCombination.TryParse("LShift+v+Space+b");
+        switched = KeyCombination.TryParse("Space+v+b+LShift");
 
         Assert.AreEqual(expectedCombination, parsed);
         Assert.AreEqual(parsed, switched);
@@ -64,20 +64,20 @@ public class KeyTests
         // Only separator
         Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("+"));
         // Remaining separator
-        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("Shift+"));
+        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("LShift+"));
         // Duplicate key
-        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("Shift+Shift"));
+        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("LShift+LShift"));
         // Too many keys
-        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("Shift+a+b+c+d"));
+        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("LShift+a+b+c+d"));
         // Empty key surrounded by valid keys
-        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("Shift+ +a"));
+        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("LShift+ +a"));
     }
 
     [TestMethod]
     public void KeyCombinationToString()
     {
-        Assert.AreEqual("Shift+a", new KeyCombination(new Key[] {
-            new Key(VirtualKeyCode.Shift, null, KeyKind.Virtual),
+        Assert.AreEqual("LShift+a", new KeyCombination(new Key[] {
+            new Key(VirtualKeyCode.LShift, null, KeyKind.Virtual),
             new Key(null, 'a', KeyKind.Text)
         }).ToString());
     }
