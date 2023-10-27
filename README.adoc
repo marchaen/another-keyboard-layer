@@ -50,6 +50,9 @@ komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit
 einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden, während
 diese gehalten wird. Siehe <<_features>> für mehr Details.
 
+NOTE: Diese Funktionalität gibt es sehr ähnlich bereits in Linux. Siehe deshalb
+https://wiki.archlinux.org/title/X_keyboard_extension#Caps_hjkl_as_vimlike_arrow_keys[Caps + hjkl as arrow keys]
+
 IMPORTANT: Durchgestrichene Features werden nicht mehr implementiert 
 beziehungsweise weiter entwickelt werden.
 
@@ -123,6 +126,8 @@ zu nennen, stattdessen wird die Fertigstellung der Komponenten betrachtet.
 NOTE: Die Implementationen wurden mit der Hilfe von Prototypen entwickelt, damit
 die benötigten Funktionen (Tastaturevents blockieren und Tastenanschläge
 simulieren) einzeln herausgefunden werden können.
+
+=== Lösung für Linux
 
 == Komponenten
 
