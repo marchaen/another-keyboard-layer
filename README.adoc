@@ -1,4 +1,10 @@
 = another keyboard layer
 :nofooter:
+ifdef::commit-hash[]
+:revdate: {docdatetime}
+:revremark: Commit: {commit-hash}
+endif::[]
+
+// Generate with "asciidoctor -acommit-hash=$(git rev-parse --short HEAD) README.adoc"
 
 // TODO: Informationen über Komponenten, Features, Verwendete Bibliotheken, etc.
