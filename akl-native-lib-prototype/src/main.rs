@@ -1,54 +1,27 @@
+mod debugger;
 mod translation;
 
-use std::{io::Write, net::TcpStream, ptr};
-
-use translation::{translate_to_character, windows_to_virtual_key};
+use std::ptr;
 
 use windows::Win32::{
     Foundation::{GetLastError, HMODULE, LPARAM, LRESULT, WPARAM},
     UI::WindowsAndMessaging::{
-        CallNextHookEx, DispatchMessageW, GetMessageW, SetWindowsHookExW, UnhookWindowsHookEx,
-        HHOOK, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL, WM_KEYDOWN, WM_KEYFIRST, WM_KEYLAST, WM_KEYUP,
-        WM_SYSKEYDOWN, WM_SYSKEYUP,
+        CallNextHookEx, DispatchMessageW, GetMessageW, SetWindowsHookExW, TranslateMessage,
+        UnhookWindowsHookEx, HHOOK, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL,
+        WM_KEYDOWN, WM_KEYFIRST, WM_KEYLAST, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
     },
 };
 
-static mut DEBUGGER: Option<Box<TcpStream>> = None;
-
-fn init_debugger(server: TcpStream) {
-    unsafe { DEBUGGER = Some(Box::new(server)) };
-}
-
-fn debug(line: &str) {
-    let mut line = line.to_owned();
-    line.push('\n');
-
-    // Safety: The program and all hooks that are using debug are running in the
-    // same thread and thus there won't be two mutable references to the server.
-    unsafe {
-        DEBUGGER
-            .as_mut()
-            .expect("Connection to debug server should have been established.")
-            .write(line.as_bytes())
-            .unwrap()
-    };
-}
+use debugger::Debugger;
+use translation::{translate_to_character, windows_to_virtual_key};
 
 fn main() {
-    let debug_server = TcpStream::connect("127.0.0.1:7777")
-        .expect("Debug server should run for prototyping the windows hook.");
+    Debugger::init();
 
-    println!(
-        "Connecting to debug server from address \"{}\".",
-        debug_server
-            .local_addr()
-            .expect("Should be able to get local client address.")
-    );
-
-    init_debugger(debug_server);
-
-    let _hook = KeyboardHookHandle::register();
+    let _keyboard_hook = KeyboardHookHandle::register();
     run_message_queue();
+
+    Debugger::destroy();
 }
 
 // TODO: Make sure that the handle / hook is unregistered in the real
@@ -58,7 +31,7 @@ struct KeyboardHookHandle(HHOOK);
 
 impl KeyboardHookHandle {
     fn register() -> Self {
-        debug("Register hook");
+        Debugger::write("Register hook");
 
         let register_result = unsafe {
             // Details and safety see:
@@ -68,7 +41,7 @@ impl KeyboardHookHandle {
 
         match register_result {
             Ok(hook) => {
-                debug(&format!("Register result: {hook:?}"));
+                Debugger::write(&format!("Register result: {hook:?}"));
                 Self(hook)
             }
             Err(error) => panic!(
@@ -80,7 +53,7 @@ impl KeyboardHookHandle {
     }
 
     fn unregister_hook(&mut self) {
-        debug("Unregister hook");
+        Debugger::write("Unregister hook");
 
         let result = unsafe {
             // Details and safety see:
@@ -88,7 +61,7 @@ impl KeyboardHookHandle {
             UnhookWindowsHookEx(self.0)
         };
 
-        debug(&format!("Unregister result: {result:?}"));
+        Debugger::write(&format!("Unregister result: {result:?}"));
     }
 }
 
@@ -101,13 +74,13 @@ impl Drop for KeyboardHookHandle {
 fn run_message_queue() {
     let mut message = MSG::default();
 
-    debug("Running message queue");
+    Debugger::write("Running message queue");
     loop {
         // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
         let result =
             unsafe { GetMessageW(ptr::addr_of_mut!(message), None, WM_KEYFIRST, WM_KEYLAST) };
 
-        debug(&format!("Message result: {}", result.0));
+        Debugger::write(&format!("Message result: {}", result.0));
 
         // Zero means exit, -1 is an error and anything else indicates that the
         // message should be dispatched.
@@ -119,11 +92,15 @@ fn run_message_queue() {
                     .message()
                     .to_string_lossy();
 
-                debug(&format!("Error retrieving message: {error_message}"));
+                Debugger::write(&format!("Error retrieving message: {error_message}"));
             }
             _ => {
-                debug("Dispatching message");
+                Debugger::write("Translate message");
+                // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
+                // Returns if the message was translated (WM_CHAR event) or not.
+                unsafe { TranslateMessage(ptr::addr_of!(message)) };
 
+                Debugger::write("Dispatching message");
                 // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessage
                 // Note: The return value should be ignored.
                 unsafe { DispatchMessageW(ptr::addr_of!(message)) };
@@ -166,10 +143,10 @@ unsafe extern "system" fn raw_keyboard_input_hook(
     };
 
     match wparam.0 as u32 {
-        WM_KEYDOWN => debug(&format!("{formatted_event} Down")),
-        WM_KEYUP => debug(&format!("{formatted_event} Up")),
-        WM_SYSKEYDOWN => debug(&format!("{formatted_event} SysDown")),
-        WM_SYSKEYUP => debug(&format!("{formatted_event} SysUp")),
+        WM_KEYDOWN => Debugger::write(&format!("{formatted_event} Down")),
+        WM_KEYUP => Debugger::write(&format!("{formatted_event} Up")),
+        WM_SYSKEYDOWN => Debugger::write(&format!("{formatted_event} SysDown")),
+        WM_SYSKEYUP => Debugger::write(&format!("{formatted_event} SysUp")),
         _ => unreachable!("See values for wparam here: https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc")
     }
 

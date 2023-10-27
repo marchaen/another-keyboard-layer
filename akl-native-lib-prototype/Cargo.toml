@@ -5,7 +5,7 @@ edition = "2021"
 
 [[bin]]
 name = "debug-server"
-path = "src/debug-server.rs"
+path = "src/debugger/server.rs"
 
 [dependencies]
 windows = { version = "0.48.0", features = [
