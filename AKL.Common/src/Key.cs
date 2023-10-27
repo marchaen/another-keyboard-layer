@@ -88,7 +88,7 @@ public class Key
             int hashcode = 1430287;
 
             if (this.virtualKey != null)
-                hashcode = hashcode * 7302013 ^ (int) this.virtualKey; 
+                hashcode = hashcode * 7302013 ^ (byte) this.virtualKey; 
 
             if (this.textKey != null)
                 hashcode = hashcode * 7302013 ^ this.textKey.GetHashCode(); 
@@ -124,15 +124,22 @@ public static class VirtualKeyCodeParser
 
 }
 
-public enum VirtualKeyCode
-{
+/// <summary>
+///     Represents all keyboard keys which don't produce text when pressed.
+///     <a href="https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes">
+///         This resource
+///     </a>
+///     lists all existing virtual keys this enum is a smaller version of it 
+///     with a couple keys renamed e. g. Capital => CapsLock, Menu => Alt, etc.
+/// </summary> 
+public enum VirtualKeyCode : byte {
     Back,
     Tab,
     Clear,
     Return,
     Shift,
     Control,
-    Menu,
+    Alt,
     Pause,
     Capital,
     Kana,
@@ -144,28 +151,28 @@ public enum VirtualKeyCode
     Kanji,
     ImeOff,
     Escape,
-    Convert,
-    Nonconvert,
-    Accept,
-    Modechange,
+    ImeConvert,
+    ImeNonconvert,
+    ImeAccept,
+    ImeModechange,
     Space,
-    Prior,
-    Next,
+    PageUp,
+    PageDown,
     End,
     Home,
-    Left,
-    Up,
-    Right,
-    Down,
+    LeftArrow,
+    UpArrow,
+    RightArrow,
+    DownArrow,
     Select,
     Print,
     Execute,
-    Snapshot,
+    PrintScreen,
     Insert,
     Delete,
     Help,
-    LWin,
-    RWin,
+    LMeta,
+    RMeta,
     Apps,
     Sleep,
     Numpad0,
@@ -214,8 +221,8 @@ public enum VirtualKeyCode
     RShift,
     LControl,
     RControl,
-    LMenu,
-    RMenu,
+    LAlt,
+    RAlt,
     BrowserBack,
     BrowserForward,
     BrowserRefresh,
