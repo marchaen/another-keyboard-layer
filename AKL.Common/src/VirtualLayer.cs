@@ -12,19 +12,16 @@ public unsafe class VirtualLayer
     {
         Configuration = configuration;
         akl = AklCoreNativeInterface.init();
+
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => this.Destroy();
     }
 
     public void Update()
     {
-        if (AklCoreNativeInterface.is_running(akl))
-        {
-            var error = AklCoreNativeInterface.stop(akl);
+        if (akl == null)
+            return;
 
-            if (error.has_error)
-            {
-                AklCoreNativeInterface.destroy_error_message(error.error_message);
-            }
-        }
+        Stop();
 
         AklCoreNativeInterface.set_switch_key(akl, Configuration.SwitchKey.ToFfi());
 
@@ -43,6 +40,32 @@ public unsafe class VirtualLayer
         }
 
         AklCoreNativeInterface.start(akl);
+    }
+
+    public void Stop()
+    {
+        if (akl == null)
+            return;
+
+        if (AklCoreNativeInterface.is_running(akl))
+        {
+            var error = AklCoreNativeInterface.stop(akl);
+
+            if (error.has_error)
+            {
+                AklCoreNativeInterface.destroy_error_message(error.error_message);
+            }
+        }
+    }
+
+    protected void Destroy()
+    {
+        if (akl != null)
+        {
+            Stop();
+            AklCoreNativeInterface.destroy(akl);
+            akl = null;
+        }
     }
 
 }
