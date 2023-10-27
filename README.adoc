@@ -87,8 +87,8 @@ class Event {
     action: Action
 }
 
-enum ChangeEventRequest {
-    None
+enum ResponseAction {
+    Nothing
     Block
     ReplaceWith(KeyCombination)
 }
@@ -100,7 +100,7 @@ class EventProcessor {
     currently_pressed: Vec<Key>,
     block_events: bool,
     key_combination_executed: bool,
-    +process(event: Event) -> ChangeEventRequest
+    +process(event: Event) -> ResponseAction
 }
 
 class NativeInputHook {
@@ -114,7 +114,7 @@ note right of NativeInputHook
 Zuständig für das Parsen von
 Rohevents und Ausführung von
 aus dem Processing entstehenden
-ChangeRequests.
+ResponseActions.
 end note
 
 Event *- Key

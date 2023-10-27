@@ -1,3 +1,13 @@
+//! Processes low level keyboard events on top of the platform independent event
+//! and event change request abstraction.
+//!
+//! The native keyboard hook creates events by using the specific os apis to
+//! translate and hook into the message system for keyboard input. The events
+//! then get passed along to the [`event processor`](EventProcessor::process())
+//! who decides if and how the event should be changed. Those changes are
+//! applied by the keyboard hook, it then fetches the next message and repeats
+//! this procedure.
+
 use std::collections;
 
 use crate::{
@@ -5,25 +15,32 @@ use crate::{
     Configuration,
 };
 
+/// The action that caused this event which is either the pressing or releasing
+/// of any keyboard key.
 #[derive(Debug, Clone, Copy)]
 enum Action {
     Press,
     Release,
 }
 
+/// Platform independent abstraction over a low level keyboard event that
+/// specifies the trigger and related [`key`](crate::key::Key).
 #[derive(Debug, Clone, Copy)]
 struct Event {
     pub action: Action,
     pub key: Key,
 }
 
+/// Platform independent abstraction over actions that are taken in response to
+/// processing an event such as blocking or replacing it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ChangeEventRequest {
-    None,
+enum ResponseAction {
+    DoNothing,
     Block,
     ReplaceWith(KeyCombination),
 }
 
+/// Processes events according to the algorithm visualized in the **README**.
 struct EventProcessor {
     switch_key: Key,
     default_combination: Option<KeyCombination>,
@@ -33,6 +50,8 @@ struct EventProcessor {
     key_combination_executed: bool,
 }
 
+/// Convenience implementation for creating an event processor with the specific
+/// configuration which will fail if the `switch_key` field is none.
 impl From<Configuration> for EventProcessor {
     fn from(value: Configuration) -> Self {
         Self {
@@ -49,17 +68,18 @@ impl From<Configuration> for EventProcessor {
 }
 
 impl EventProcessor {
-    pub fn process(&mut self, event: Event) -> ChangeEventRequest {
+    /// Process the event as specified in the **README**.
+    pub fn process(&mut self, event: Event) -> ResponseAction {
         match event.action {
             Action::Press => {
                 if event.key == self.switch_key {
                     self.block_events = true;
                     self.currently_pressed.clear();
-                    return ChangeEventRequest::Block;
+                    return ResponseAction::Block;
                 }
 
                 if !self.block_events {
-                    return ChangeEventRequest::None;
+                    return ResponseAction::DoNothing;
                 }
 
                 self.currently_pressed.push(event.key);
@@ -73,13 +93,13 @@ impl EventProcessor {
                     {
                         self.key_combination_executed = true;
                         self.currently_pressed.pop();
-                        return ChangeEventRequest::ReplaceWith(
+                        return ResponseAction::ReplaceWith(
                             *replacement_combination,
                         );
                     }
                 }
 
-                ChangeEventRequest::Block
+                ResponseAction::Block
             }
             Action::Release => {
                 if event.key == self.switch_key {
@@ -87,14 +107,12 @@ impl EventProcessor {
 
                     if !self.key_combination_executed {
                         if let Some(combination) = self.default_combination {
-                            return ChangeEventRequest::ReplaceWith(
-                                combination,
-                            );
+                            return ResponseAction::ReplaceWith(combination);
                         }
                     }
 
                     self.key_combination_executed = false;
-                    return ChangeEventRequest::Block;
+                    return ResponseAction::Block;
                 }
 
                 if let Ok(index) =
@@ -103,11 +121,11 @@ impl EventProcessor {
                     self.currently_pressed.swap_remove(index);
 
                     if self.block_events {
-                        return ChangeEventRequest::Block;
+                        return ResponseAction::Block;
                     }
                 }
 
-                ChangeEventRequest::None
+                ResponseAction::DoNothing
             }
         }
     }
@@ -158,28 +176,24 @@ mod tests {
             };
         }
 
-        test_event!(Action::Press, 'a', ChangeEventRequest::None);
+        test_event!(Action::Press, 'a', ResponseAction::DoNothing);
 
-        test_event!(Action::Press, switch_key, ChangeEventRequest::Block);
-        test_event!(Action::Release, 'a', ChangeEventRequest::None);
+        test_event!(Action::Press, switch_key, ResponseAction::Block);
+        test_event!(Action::Release, 'a', ResponseAction::DoNothing);
 
-        test_event!(Action::Press, 'a', ChangeEventRequest::Block);
-        test_event!(Action::Release, 'a', ChangeEventRequest::Block);
+        test_event!(Action::Press, 'a', ResponseAction::Block);
+        test_event!(Action::Release, 'a', ResponseAction::Block);
 
         test_event!(
             Action::Release,
             switch_key,
-            ChangeEventRequest::ReplaceWith(default_combination)
+            ResponseAction::ReplaceWith(default_combination)
         );
 
-        test_event!(Action::Press, switch_key, ChangeEventRequest::Block);
+        test_event!(Action::Press, switch_key, ResponseAction::Block);
 
-        test_event!(
-            Action::Press,
-            't',
-            ChangeEventRequest::ReplaceWith(kc!('a'))
-        );
+        test_event!(Action::Press, 't', ResponseAction::ReplaceWith(kc!('a')));
 
-        test_event!(Action::Release, switch_key, ChangeEventRequest::Block);
+        test_event!(Action::Release, switch_key, ResponseAction::Block);
     }
 }

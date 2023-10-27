@@ -1,4 +1,4 @@
-//! # FFI for AKL.Common
+//! # FFI for c# package AKL.Common
 //!
 //! This module does all the conversions which are needed to be able to interact
 //! with the actual library from c#. This also makes it possible for the core
@@ -173,8 +173,7 @@ pub extern "C" fn destroy_error_message(error_message: *mut i8) {
 /// Has to be passed back to rust for deallocation. See [destroy]
 #[no_mangle]
 pub extern "C" fn init() -> *mut AklContext {
-    Box::into_raw(Box::new(AnotherKeyboardLayer::initialize()))
-        .cast::<AklContext>()
+    Box::into_raw(Box::new(AnotherKeyboardLayer::new())).cast::<AklContext>()
 }
 
 /// Destroys the akl context by dropping it. This means the Drop implementation

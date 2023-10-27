@@ -1,3 +1,9 @@
+//! Defines Key, key combination and virtual key types and conversions between
+//! them as well as the platform specific types.
+//!
+//! The conversions are implemented via [`From`](`std::convert::From`) and
+//! [`TryFrom`](`std::convert::TryFrom`) traits and as such their documentation
+//! can be found under the `Trait Implementations` segment of each type.
 #![allow(non_upper_case_globals)]
 
 use std::hash::Hash;
@@ -15,12 +21,16 @@ pub enum Key {
     Virtual(VirtualKey),
 }
 
+/// Convenience `from` implementation that justs wraps the character in
+/// [`Key::Text`].
 impl From<char> for Key {
     fn from(value: char) -> Self {
         Self::Text(value)
     }
 }
 
+/// Convenience `from` implementation that justs wraps the character in
+/// [`Key::Virtual`].
 impl From<VirtualKey> for Key {
     fn from(value: VirtualKey) -> Self {
         Self::Virtual(value)
@@ -46,6 +56,8 @@ pub enum KeyCombinationConversionError {
 }
 
 impl KeyCombination {
+    /// Counts the number of `Some`-keys that this key combination holds always
+    /// at least one because of the first tuple value.
     fn count_keys(&self) -> u8 {
         if self.1.is_some() {
             return 2;
@@ -63,6 +75,8 @@ impl KeyCombination {
     }
 }
 
+/// Conversion from a key slice to a key combination, fails if the slice is
+/// empty or contains more than four keys.
 impl TryFrom<&[Key]> for KeyCombination {
     type Error = KeyCombinationConversionError;
 
@@ -84,6 +98,8 @@ impl TryFrom<&[Key]> for KeyCombination {
     }
 }
 
+/// Conversion from a slice of optional keys to a key combination, fails if the
+/// slice is empty, contains more than four keys or if the first element is none.
 impl TryFrom<&[Option<Key>]> for KeyCombination {
     type Error = KeyCombinationConversionError;
 
@@ -115,12 +131,17 @@ impl TryFrom<&[Option<Key>]> for KeyCombination {
     }
 }
 
+/// Convenience `from` implementation that justs wraps the keys in an array.
+/// The resulting array is always guaranteed to hold `Some` key at index zero.
 impl From<&KeyCombination> for [Option<Key>; 4] {
     fn from(value: &KeyCombination) -> Self {
         [Some(value.0), value.1, value.2, value.3]
     }
 }
 
+/// Implements key order agnostic hashing of key combinations which means the
+/// hash of a key combination will be the same regardless of the actual storage
+/// order of the keys as the same keys are present.
 impl Hash for KeyCombination {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         let mut keys: [Option<Key>; 4] = self.into();
@@ -129,6 +150,9 @@ impl Hash for KeyCombination {
     }
 }
 
+/// Implements key order agnostic comparison of key combinations which means
+/// any key combinations that contain the same keys regardless of their order
+/// are equal.
 impl PartialEq for KeyCombination {
     fn eq(&self, other: &Self) -> bool {
         if self.count_keys() != other.count_keys() {
@@ -168,6 +192,7 @@ macro_rules! define_virtual_key_codes {
             NoKeyWithSpecifiedCode(VIRTUAL_KEY),
         }
 
+        /// Try to get a virtual key with the specified name fails if not found.
         impl TryFrom<&str> for VirtualKey {
             type Error = VirtualKeyConversionError;
 
@@ -179,6 +204,10 @@ macro_rules! define_virtual_key_codes {
             }
         }
 
+        /// Tries to translate [`windows api virtual keys`](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes)
+        /// to actual virtual keys. This library defines a virtual key as any
+        /// key that doesn't print characters when pressed but the windows api
+        /// includes letters A-Z and some oem keys that will fail the try_from.
         #[cfg(target_os = "windows")]
         impl TryFrom<VIRTUAL_KEY> for VirtualKey {
             type Error = VirtualKeyConversionError;
@@ -191,6 +220,8 @@ macro_rules! define_virtual_key_codes {
             }
         }
 
+        /// Akl virtual keys are a subset of windows virtual keys so this
+        /// conversion just returns the translation as specified in the macro.
         #[cfg(target_os = "windows")]
         impl From<VirtualKey> for VIRTUAL_KEY {
             fn from(virtual_key: VirtualKey) -> Self {
@@ -202,6 +233,8 @@ macro_rules! define_virtual_key_codes {
 
         #[cfg(target_os = "windows")]
         impl VirtualKey {
+            /// Convenience function for converting to the raw windows virtual
+            /// key code translation.
             pub fn to_windows_key(self) -> u16 {
                 Into::<VIRTUAL_KEY>::into(self).0
             }
