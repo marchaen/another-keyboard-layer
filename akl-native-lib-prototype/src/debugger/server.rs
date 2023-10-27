@@ -1,34 +1,45 @@
 use std::{
     io::{BufRead, BufReader},
-    net::TcpListener,
+    net::{TcpListener, TcpStream},
+    thread,
 };
 
 fn main() {
-    let listener = TcpListener::bind("0.0.0.0:7777")
+    let listener = TcpListener::bind("127.0.0.1:7777")
         .expect("Should be able to open debug server on port 7777.");
 
     println!("Start listening for connections");
 
     for stream in listener.incoming() {
-        let mut stream = stream.unwrap();
-        let address = stream
-            .peer_addr()
-            .expect("Should be able to get local client address.");
-
-        println!("Connected ({address})");
-
-        let mut line = String::new();
-        let mut reader = BufReader::new(&mut stream);
-
-        while let Ok(bytes) = reader.read_line(&mut line) {
-            if bytes == 0 {
-                break;
+        match stream {
+            Ok(stream) => {
+                thread::spawn(move || handle_connection(stream));
             }
+            Err(error) => {
+                println!("A connection failed to be established: {error}");
+            }
+        }
+    }
+}
 
-            print!("({address}) {line}");
-            line.clear();
+fn handle_connection(mut connection: TcpStream) {
+    let address = connection
+        .peer_addr()
+        .expect("Should be able to get local client address.");
+
+    println!("Connected ({address})");
+
+    let mut line = String::new();
+    let mut reader = BufReader::new(&mut connection);
+
+    while let Ok(bytes) = reader.read_line(&mut line) {
+        if bytes == 0 {
+            break;
         }
 
-        println!("Disconnected ({address})");
+        print!("({address}) {line}");
+        line.clear();
     }
+
+    println!("Disconnected ({address})");
 }

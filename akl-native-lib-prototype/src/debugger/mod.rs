@@ -10,14 +10,14 @@ impl Debugger {
             DEBUGGER = Some(Self(Mutex::new(
                 TcpStream::connect("127.0.0.1:7777")
                     .expect("Debug server should run for prototyping the native lib."),
-            )))
-        };
+            )));
+        }
 
-        Debugger::write("Successfully connected.");
+        Self::write("Successfully connected.");
     }
 
     pub fn destroy() {
-        Debugger::write("Ending connection.");
+        Self::write("Ending connection.");
         let _ = unsafe { DEBUGGER.take() };
     }
 
