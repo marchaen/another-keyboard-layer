@@ -297,8 +297,6 @@ unsafe extern "system" fn raw_keyboard_input_hook(
                 CURRENTLY_WRITING = true;
             }
 
-            info!("Simulating {key_combination:#?}");
-
             for input in translation::to_native_input_events(key_combination)
                 .into_iter()
                 .flatten()

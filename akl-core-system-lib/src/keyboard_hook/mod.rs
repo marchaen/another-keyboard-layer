@@ -10,3 +10,9 @@ mod windows;
 
 #[cfg(target_os = "windows")]
 pub use self::windows::{Handle, HandleError};
+
+#[cfg(not(target_os = "windows"))]
+mod linux;
+
+#[cfg(not(target_os = "windows"))]
+pub use self::linux::{Handle, HandleError};
