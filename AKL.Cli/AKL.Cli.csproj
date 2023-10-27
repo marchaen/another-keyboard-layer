@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\AKL.Shared\AKL.Shared.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <AssemblyName>akl-cli</AssemblyName>
     <OutputType>Exe</OutputType>
