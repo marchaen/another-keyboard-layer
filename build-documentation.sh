@@ -13,7 +13,8 @@ mkdir $out_dir
 if ! [ -x "$(command -v asciidoctor)" ]; then
   echo 'Please install asciidoctor with the asciidoctor-diagram extension.
 https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/
-https://docs.asciidoctor.org/diagram-extension/latest/installation/' >&2
+https://docs.asciidoctor.org/diagram-extension/latest/installation/
+https://docs.asciidoctor.org/asciidoctor/latest/syntax-highlighting/rouge/' >&2
   exit 1
 fi
 

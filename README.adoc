@@ -10,17 +10,21 @@ endif::[]
 // Translations
 :toc-title: Inhaltsverzeichnis
 :note-caption: Anmerkung
+// Source Code highlighting
+:source-highlighter: rouge
+:rouge-style: base16.light
 
 ////
-Generate documentation with rendered diagrams by executing
+Generate documentation with rendered diagrams by executing the following script.
 
     ./build-documentation.sh
 
 An installation of the ruby version of asciidoctor with the diagram extension
-is required:
+and the rouge syntax highlighter is required:
 
 - https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/
 - https://docs.asciidoctor.org/diagram-extension/latest/#installation
+- https://docs.asciidoctor.org/asciidoctor/latest/syntax-highlighting/rouge/
 ////
 
 Programm das einen weiteren Tastaturlayer emuliert.
@@ -125,3 +129,15 @@ core --> keyboard : interacts with
 
 @enduml
 ....
+
+== Konfigurationsdatei
+
+Die folgende Konfiguration sollte dem Benutzer über das Gui möglich sein, 
+allerdings könnte er die Datei auch direkt verändern und das Program mit der 
+Cli starten.
+
+.Standartkonfigurationsdatei mit Kommentaren
+[source, toml]
+----
+include::default-config.toml[]
+----
