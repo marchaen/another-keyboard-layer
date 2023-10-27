@@ -4,6 +4,23 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  
+  <Target Name="BuildNativeLibrary" BeforeTargets="PrepareForBuild">
+    <Exec Command="cargo build --release" WorkingDirectory="../akl-core-system-lib" /> 
+    <Copy
+        SourceFiles="../akl-core-system-lib/target/bindings/AklCoreNativeInterface.g.cs"
+        DestinationFolder="./bindings/"
+    />
+
+    <!-- Include native dynamic librarys as output files -->
+    <ItemGroup>
+      <Content Include="../akl-core-system-lib/target/release/libakl_core_system_lib.*">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <PublishState>Included</PublishState>
+      </Content>
+    </ItemGroup>
+  </Target>
 
 </Project>

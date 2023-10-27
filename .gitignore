@@ -450,3 +450,6 @@ target/
 
 # Documentation build output
 documentation-build
+
+# Automatically generated native library bindings
+AKL.Shared/bindings
