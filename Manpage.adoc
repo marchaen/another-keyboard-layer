@@ -1,0 +1,40 @@
+= akl-cli(1)
+:doctype: manpage
+:manmanual: AnotherKeyboardLayer Command-Line Interface
+:mansource: Akl.Cli (?)
+ifdef::commit-hash[]
+:mansource: Akl.Cli ({commit-hash})
+endif::[]
+:nofooter:
+
+== Name
+
+akl-cli - run another keyboard layer from the terminal
+
+== Synopsis
+
+*akl-cli* [_OPTION_]...
+
+== Options
+
+// tag::cli-options[]
+
+*-c, --config*=_CONFIGURATION_FILE_::
+Explicitly specify a configuration file to load. The program will exit with a
+non zero code if the file doesn't exist.
++
+By default the configuration file will be stored at
+__$XDG_CONFIG_HOME__/another-keyboard-layer.toml. If __$XDG_CONFIG_HOME__ is not
+set __$HOME__/.config is used instead.
+
+*-l, --live-reload*::
+Reload another keyboard layer when the configuration file changes. Respects
+overriding the default config path with the __--config__ option.
+
+*-v, --version*::
+Display version information.
+
+*-h, -? --help*::
+Show a help message.
+
+// end::cli-options[]

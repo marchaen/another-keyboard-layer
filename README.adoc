@@ -18,10 +18,10 @@ endif::[]
 ////
 Generate documentation with rendered diagrams by executing the following script.
 
-    ./build-documentation.sh
+    ./build-documentation.py
 
 An installation of the ruby version of asciidoctor with the diagram extension
-and the rouge syntax highlighter is required:
+and the rouge syntax highlighter and python3 is required:
 
 - https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/
 - https://docs.asciidoctor.org/diagram-extension/latest/#installation
@@ -38,8 +38,8 @@ einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden.
 
 - Konfigurierbare Layer-Umschalttaste
 - Standarttaste die gesendet wird, für den Fall das keine Taste im virtuellen
-Layer gedruckt wurde.
-- Sprachunabhängige Implementation der Tastenwerte
+Layer gedrückt wurde.
+- Sprachunabhängige Implementation der Tastenerkennung
 - Textbasierte und auch graphische Konfigurationsmöglichkeiten
 - Konfigurierbares Starten mit dem System
 
@@ -219,6 +219,10 @@ für die Implementierung, Microsofts eigens für das Entwickeln von CLIs erstell
 Bibliothek https://github.com/dotnet/command-line-api[System.CommandLine]
 verwendet werden.
 
+==== Verfügbare Optionen (Englisch)
+
+include::Manpage.adoc[tags=cli-options]
+
 === Gemeinsame Funktionalität von Gui und Cli (`AKL.Common`)
 
 Dieses Modul sollte das Parsen und Schreiben der Konfigurationsdatei als auch
@@ -369,11 +373,10 @@ kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
 
 === Dokumentation
 
-Folgende Befehle generieren HTML-Dokumente aus roh Text von Source Code und
+Folgender Befehl generiert HTML-Dokumente aus roh Text von Source Code und
 den AsciiDocs.
 
-Readme mit Diagrammen:: `./build-documentation.py`
-akl-core-system-lib Dokumentation:: `cargo doc --no-deps --document-private-items`
+  ./build-documentation.py
 
 .Anforderungen
 - https://www.python.org/downloads/[Python3]
