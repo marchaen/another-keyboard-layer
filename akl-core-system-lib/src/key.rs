@@ -59,7 +59,28 @@ impl KeyCombination {
             return 4;
         }
 
-        return 1;
+        1
+    }
+}
+
+impl TryFrom<&[Key]> for KeyCombination {
+    type Error = KeyCombinationConversionError;
+
+    fn try_from(value: &[Key]) -> Result<Self, Self::Error> {
+        if value.is_empty() {
+            return Err(KeyCombinationConversionError::NotEnoughKeys);
+        }
+
+        if value.len() > 4 {
+            return Err(KeyCombinationConversionError::TooManyKeys);
+        }
+
+        Ok(Self(
+            value[0],
+            value.get(1).copied(),
+            value.get(2).copied(),
+            value.get(3).copied(),
+        ))
     }
 }
 
@@ -328,9 +349,13 @@ mod tests {
 
     #[test]
     fn test_key_combination_conversions() {
+        // Test &[Option<Key>] implementation
+
         assert_eq!(
-            Err(KeyCombinationConversionError::NotEnoughKeys),
-            TryInto::<KeyCombination>::try_into([].as_slice())
+            Result::<KeyCombination, _>::Err(
+                KeyCombinationConversionError::NotEnoughKeys
+            ),
+            TryFrom::<&[Option<Key>]>::try_from([].as_slice())
         );
 
         assert_eq!(
@@ -344,39 +369,81 @@ mod tests {
         );
 
         assert_eq!(
-            [Some(KEY_A), Some(KEY_ESCAPE), None, None],
-            Into::<[Option<Key>; 4]>::into(&KeyCombination(
-                KEY_A,
-                Some(KEY_ESCAPE),
-                None,
-                None
-            ))
+            Ok(KeyCombination(KEY_A, Some(KEY_ESCAPE), None, None)),
+            TryFrom::<&[Option<Key>]>::try_from(
+                [Some(KEY_A), Some(KEY_ESCAPE), None, None].as_slice()
+            )
         );
 
         assert_eq!(
-            [Some(KEY_A), Some(KEY_ESCAPE), Some(KEY_B), None],
-            Into::<[Option<Key>; 4]>::into(&KeyCombination(
-                KEY_A,
-                Some(KEY_ESCAPE),
-                Some(KEY_B),
-                None
-            ))
+            Ok(KeyCombination(KEY_A, Some(KEY_ESCAPE), Some(KEY_B), None)),
+            TryFrom::<&[Option<Key>]>::try_from(
+                [Some(KEY_A), Some(KEY_ESCAPE), Some(KEY_B), None].as_slice()
+            )
         );
 
         assert_eq!(
-            [Some(KEY_A), Some(KEY_ESCAPE), Some(KEY_B), Some(KEY_RETURN)],
-            Into::<[Option<Key>; 4]>::into(&KeyCombination(
+            Ok(KeyCombination(
                 KEY_A,
                 Some(KEY_ESCAPE),
                 Some(KEY_B),
                 Some(KEY_RETURN)
-            ))
+            )),
+            TryFrom::<&[Option<Key>]>::try_from(
+                [Some(KEY_A), Some(KEY_ESCAPE), Some(KEY_B), Some(KEY_RETURN)]
+                    .as_slice()
+            )
         );
 
         assert_eq!(
             Err(KeyCombinationConversionError::TooManyKeys),
             TryInto::<KeyCombination>::try_into(
                 [None, None, None, None, None].as_slice()
+            )
+        );
+
+        // Test &[Key] implementation
+
+        assert_eq!(
+            Result::<KeyCombination, _>::Err(
+                KeyCombinationConversionError::NotEnoughKeys
+            ),
+            TryFrom::<&[Key]>::try_from([].as_slice())
+        );
+
+        assert_eq!(
+            Ok(KeyCombination(KEY_A, None, None, None)),
+            TryInto::<KeyCombination>::try_into([KEY_A].as_slice())
+        );
+
+        assert_eq!(
+            Ok(KeyCombination(KEY_A, Some(KEY_ESCAPE), None, None)),
+            TryFrom::<&[Key]>::try_from([KEY_A, KEY_ESCAPE].as_slice())
+        );
+
+        assert_eq!(
+            Ok(KeyCombination(KEY_A, Some(KEY_ESCAPE), Some(KEY_B), None)),
+            TryFrom::<&[Key]>::try_from([KEY_A, KEY_ESCAPE, KEY_B,].as_slice())
+        );
+
+        assert_eq!(
+            Ok(KeyCombination(
+                KEY_A,
+                Some(KEY_ESCAPE),
+                Some(KEY_B),
+                Some(KEY_RETURN)
+            )),
+            TryFrom::<&[Key]>::try_from(
+                [KEY_A, KEY_ESCAPE, KEY_B, KEY_RETURN].as_slice()
+            )
+        );
+
+        assert_eq!(
+            Result::<KeyCombination, _>::Err(
+                KeyCombinationConversionError::TooManyKeys
+            ),
+            TryFrom::<&[Key]>::try_from(
+                [KEY_A, KEY_ESCAPE, KEY_B, KEY_RETURN, KEY_A].as_slice()
             )
         );
     }
