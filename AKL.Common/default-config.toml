@@ -33,7 +33,6 @@
 # - Clear
 # - Insert
 # - Delete
-# - PrintScreen
 # - PageUp
 # - PageDown
 # - Scroll
@@ -108,23 +107,9 @@
 # - BrowserFavorites
 # - BrowserHome
 # - LaunchMail
-# - LaunchMediaSelect
 # - LaunchApp1
 # - LaunchApp2
-# - Processkey
 # 
-# Ime specific keys
-# - KanaOrHangul (Depends on the keyboard layout)
-# - ImeOn
-# - Junja
-# - Final
-# - KanjiOrHanja (Depends on the keyboard layout)
-# - ImeOff
-# - ImeConvert
-# - ImeNonconvert
-# - ImeAccept
-# - ImeModechange
-#
 # This program differentiates between "key" and "key combination" by wether a 
 # single key or multiple distinct keys on the keyboard are pressed. For example
 # "LShift+s" wouldn't be a valid switch-key.
