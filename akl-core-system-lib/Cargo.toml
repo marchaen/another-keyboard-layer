@@ -6,5 +6,8 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib"]
 
+[dependencies]
+thiserror = "1.0.44"
+
 [build-dependencies]
 csbindgen = "1.7.3"
