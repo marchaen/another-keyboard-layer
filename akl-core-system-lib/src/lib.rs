@@ -78,7 +78,7 @@ pub enum VirtualKey {
     Control,
     Alt,
     Pause,
-    Capital,
+    CapsLock,
     Kana,
     Hangul,
     ImeOn,

@@ -160,7 +160,7 @@ public enum VirtualKeyCode : byte {
     Control,
     Alt,
     Pause,
-    Capital,
+    CapsLock,
     Kana,
     Hangul,
     ImeOn,

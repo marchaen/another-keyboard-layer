@@ -18,7 +18,7 @@
 # possible for alphabetic characters because the parser will see the upper case
 # letter and try to find a special / named key with it instead e. g. "F" => 
 # Search for keys that start with "F".
-switch_key = "Capital"
+switch_key = "CapsLock"
 
 # This key combination will be simulated if you press and release the switch key
 # without invoking any mappings.
@@ -34,10 +34,10 @@ start_with_system = "False"
 #
 # Note: All target key combinations are additional to your switch key.
 [mappings]
-"h" = "Left"
-"j" = "Down"
-"k" = "Up"
-"l" = "Right"
-"Control+j" = "Prior"
-"Control+k" = "Next"
+"h" = "LeftArrow"
+"j" = "DownArrow"
+"k" = "UpArrow"
+"l" = "RightArrow"
+"Control+j" = "PageUp"
+"Control+k" = "PageDown"
 "Shift+d" = "Delete"
