@@ -1,19 +1,25 @@
 = Another Keyboard Layer (AKL)
-:nofooter:
-:toc: preamble
-:imagesdir: assets
-:experimental:
+// Timestamp & Versioning
 ifdef::commit-hash[]
 :revdate: {docdatetime}
 :revremark: Commit: {commit-hash}
 endif::[]
 // Translations
-:!figure-caption:
 :toc-title: Inhaltsverzeichnis
 :note-caption: Anmerkung
-// Source Code highlighting
+// Table of Contents
+:toc: preamble
+:toclevels: 3
+// Special blocks
+:!example-caption:
+:!figure-caption:
+// Sourcecode highlighting
 :source-highlighter: rouge
 :rouge-style: base16.light
+// Miscellaneous
+:nofooter:
+:experimental:
+:imagesdir: assets
 
 ////
 Generate documentation with rendered diagrams by executing the following script.
@@ -24,6 +30,7 @@ An installation of the ruby version of asciidoctor with the diagram extension
 and the rouge syntax highlighter and python3 is required:
 
 - https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/
+- https://docs.asciidoctor.org/pdf-converter/latest/install/#install-asciidoctor-pdf
 - https://docs.asciidoctor.org/diagram-extension/latest/#installation
 - https://docs.asciidoctor.org/asciidoctor/latest/syntax-highlighting/rouge/
 ////
@@ -32,22 +39,115 @@ Programm das einen weiteren Tastaturlayer emuliert.
 
 Auf diesen virtuellen Layer können schwer zu erreichende Tasten oder
 komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit
-einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden.
+einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden, während
+diese gehalten wird. Siehe <<_features>> für mehr Details.
 
 == Features
 
-- Konfigurierbare Layer-Umschalttaste
-- Standarttaste die gesendet wird, für den Fall das keine Taste im virtuellen
-Layer gedrückt wurde.
-- Sprachunabhängige Implementation der Tastenerkennung
-- Textbasierte und auch graphische Konfigurationsmöglichkeiten
-- Konfigurierbares Starten mit dem System
+Auflistung und Erklärung aller Features.
+
+Konfigurierbare Layer-Umschalttaste:: Die Taste welche gehalten wird, um auf den
+virtuellen Layer zu schalten ist frei wählbar.
+
+Standarttastaturkombination beim leeren Umschalten:: Wenn die
+Layer-Umschalttaste losgelassen wird ohne eine Tastenkombination auszulösen kann
+optional eine Standarttastenkombination gesendet werden.
++
+Nützlich um z. B. ein weiteres kbd:[Escape] auf kbd:[CapsLock] zu legen und
+somit die eigentliche Funktionsweise von kbd:[CapsLock] komplett zu Ersetzen.
+
+Sprach- und Layout unabhängige Implementation:: Alle Tasten werden daran erkannt
+welchen Text sie produzieren, wenn sie einzeln gedrückt werden. Das bedeutet
+egal welche Kombination von Ausgabe verändernden Tasten mit gedrückt werden, es
+wird nur der Basistext erkannt.
++
+.Beispiel: Die `2`-Taste (deutsches Layout)
+====
+kbd:[2] = `2` => `2` erkannt +
+kbd:[Shift + 2] = `"` => `2` erkannt +
+kbd:[Strg + Alt + 2] = `²` => `2` erkannt +
+====
++
+Deadkeys also Tasten die nur in Kombination mit einer anderen Taste auch Text
+produzieren und Tasten welche Unicode Symbole produzieren werden auch
+erkannt.
++
+.Beispiel: Deadkeys und Unicode
+====
+kbd:[´] = `[Keine Ausgabe]` => `´` erkannt +
+kbd:[^] = `[Keine Ausgabe]` => `^` erkannt +
+kbd:[ä] = `ä` => `ä` erkannt +
+kbd:[ü] = `ü` => `ü` erkannt +
+====
+
+Textbasierte als auch graphische Konfigurationsmöglichkeiten:: Das Projekt stellt
+einen visuellen Editor für die Konfiguration des virtuellen Layers bereit.
+Natürlich kann auch die TOML-Datei direkt bearbeitet werden und dann für das
+Starten des virtuellen Layers mit der Cli verwendet werden.
+
+Starten mit dem System __(nur auf Windows)__:: Startet AKL automatisch mit dem
+System. Es macht wenig Sinn diese Funktionalität für Linux bereit zu stellen,
+da es dort zu viele verschiedene Möglichkeiten gibt und die Entscheidung darüber
+den Benutzer überlassen werden sollte.
+
+Livereload der Konfiguration:: Es gibt die Möglichkeit den virtuellen Layer
+automatisch neuzustarten sobald manuelle Änderungen an der Konfigurationsdatei 
+vorgenommen worden sind. Siehe Cli Optionen: <<_verfügbare_optionen_englisch>>
 
 == Komponenten
 
-Um GUI-Entwicklung mit C# und Interfacing von Native Bibliotheken, die in
-anderen Programmiersprachen geschrieben wurden, mit C# zu lernen, wird das
-Programm in folgende Komponenten aufgeteilt.
+Das Projekt Another Keyboard Layer ist in GUI, Cli, Common und Native / Core
+Komponenten auf geteilt, wobei nur die Native / Core Library in Rust geschrieben
+wird, da die Kommunikation mit Low Level Apis in C# zwar möglich aber sehr
+mühsam ist.
+
+Außerdem soll während der Verwirklichung des Projekts GUI-Entwicklung und
+Interfacing mit Native Bibliotheken in C# besser gelernt werden.
+
+NOTE: Das Interfacing mit Rust ist sehr viel einfacher, da die Bindings für C#
+automatisch mit https://github.com/Cysharp/csbindgen[csbindgen] generiert werden.
+
+[%breakable]
+=== Überblick
+
+[plantuml, target="components-overview", format=svg]
+....
+@startuml
+!theme reddress-darkblue
+
+node "Operating System" {
+    interface "Raw keyboard events" as keyboard
+
+    note bottom of keyboard
+        Implementation
+        is os dependent.
+    end note
+}
+
+component "Core Library (""akl-core-system-library"")" as core
+
+interface "Toml Configuration" as config
+component "Shared Functionality (""AKL.Common"")" as common
+
+component "Main User Interface (""AKL.Gui"")" as gui
+component "Basic Cli Wrapper (""AKL.Cli"")" as cli
+
+gui --> common : uses
+cli --> common : uses
+
+common --> core : configures, starts and stops
+config <- common : writes and reads
+
+note left of core
+    Implements the
+    configurable
+    virtual layer.
+end note
+
+core --> keyboard : interacts with
+
+@enduml
+....
 
 === Kern (`akl-core-system-lib`)
 
@@ -119,7 +219,7 @@ end note
 
 Event *- Key
 Action -* Event
-EventProcessor - ChangeEventRequest
+EventProcessor - ResponseAction
 EventProcessor -- Event
 NativeInputHook -- EventProcessor : uses to process events
 
@@ -210,6 +310,7 @@ Framework, welches von der Struktur sehr stark
 https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-wpf?view=vs-2022#what-is-wpf[WPF]
 ähnelt.
 
+[%breakable]
 ==== Mockup
 
 [plantuml, target="gui-mockup", format=svg]
@@ -254,6 +355,7 @@ verwendet werden.
 
 include::Manpage.adoc[tags=cli-options]
 
+[%breakable]
 ==== Visualisierung
 
 [plantuml, target="cli-program-flow", format=svg]
@@ -399,68 +501,32 @@ VirtualLayer *-- AklConfiguration : needs
 @enduml
 ....
 
-=== Überblick über die Beziehungen der Komponenten
-
-[plantuml, target="components-overview", format=svg]
-....
-@startuml
-!theme reddress-darkblue
-
-node "Operating System" {
-    interface "Raw keyboard events" as keyboard
-
-    note bottom of keyboard
-        Implementation
-        is os dependent.
-    end note
-}
-
-component "Core Library (""akl-core-system-library"")" as core
-
-interface "Toml Configuration" as config
-component "Shared Functionality (""AKL.Common"")" as common
-
-component "Main User Interface (""AKL.Gui"")" as gui
-component "Basic Cli Wrapper (""AKL.Cli"")" as cli
-
-gui --> common : uses
-cli --> common : uses
-
-common --> core : configures, starts and stops
-config <- common : writes and reads
-
-note left of core
-    Implements the
-    configurable
-    virtual layer.
-end note
-
-core --> keyboard : interacts with
-
-@enduml
-....
-
 == Build Anweisungen
 
 Das Gui und die Cli können mit `dotnet publish -c Release` für die eigene 
 Platform gebaut werden. Wenn man die Option `--os **<OS>**` am Ende hinzufügt,
 kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
-`linux`).
+`linux`), allerdings wird empfohlen das **<OS>** immer anzugeben.
 
 .Anforderungen
 - https://dotnet.microsoft.com/en-us/download/dotnet/7.0[.NET 7.0 SDK]
 - https://www.rust-lang.org/tools/install[Rustlang]
-- https://github.com/cross-rs/cross[cross]
+- https://github.com/cross-rs/cross[cross (Easy cross-platform rust builds)]
 
 === Dokumentation
 
-Folgender Befehl generiert HTML-Dokumente aus roh Text von Source Code und
-den AsciiDocs.
+Das Ausführen vom folgenden Skript generiert HTML-Dokumente aus roh Text von 
+Source Code und den AsciiDocs.
 
   ./build-documentation.py
 
 .Anforderungen
 - https://www.python.org/downloads/[Python3]
+- https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/[AsciiDoc Converter]
+- https://www.rust-lang.org/tools/install[Rustlang (Generierung von akl-core-system-lib Dokumentation)]
+
+NOTE: Die genauen Installationsanweisungen von AsciiDocs können in der
+Rohansicht von diesem Dokument ganz oben gefunden werden.
 
 == Konfigurationsdatei
 

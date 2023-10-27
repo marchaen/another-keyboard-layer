@@ -110,7 +110,7 @@
 # - LaunchApp1
 # - LaunchApp2
 # 
-# This program differentiates between "key" and "key combination" by wether a 
+# This program differentiates between "key" and "key combination" by whether a 
 # single key or multiple distinct keys on the keyboard are pressed. For example
 # "LShift+s" wouldn't be a valid switch-key.
 #
