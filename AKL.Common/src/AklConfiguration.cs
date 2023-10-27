@@ -3,7 +3,12 @@ namespace AKL.Common;
 using Tomlyn;
 using Tomlyn.Model;
 
-// TODO: Write documentation for this exception
+/// <summary>
+///     Represents any error that can occur while parsing the raw configuration
+///     file. The main reason for having a separate exception class is to make
+///     it easier for the caller to handle any errors.
+/// </summary>
+/// <seealso cref="AklConfiguration.FromString(string)"/>
 public class AklConfigurationParsingException : Exception
 {
     public AklConfigurationParsingException(string? message) : base(message) { }
@@ -12,7 +17,7 @@ public class AklConfigurationParsingException : Exception
 public class AklConfiguration
 {
 
-    private TomlAklConfiguration origin;
+    private readonly TomlAklConfiguration origin;
 
     public bool Autostart { get; set; }
 
@@ -21,7 +26,37 @@ public class AklConfiguration
 
     public Dictionary<KeyCombination, KeyCombination> Mappings { get; set; } = new Dictionary<KeyCombination, KeyCombination>();
 
-    // TODO: Write documentation
+    /// <summary>
+    ///     Parses the raw toml configuration and deserializes it's values.
+    /// 
+    ///     Details on the expected format and needed values can be found in
+    ///     the default configuration. (<code>default-config.toml<code>)
+    /// </summary>
+    /// <param name="raw">The raw toml configuration as text.</param>
+    /// <returns>
+    ///     A fully parsed AklConfiguration ready for use with the virtual layer.
+    /// </returns>
+    /// <exception cref="AklConfigurationParsingException">
+    ///     If any error occurs while trying to parse the raw configuration
+    ///     it will be wrapped in a <see cref="AklConfigurationException"/> to
+    ///     make it more convenient for the consumer to handle.
+    ///     
+    ///     Errors can occur because of the following reasons:
+    ///     <list type="bullet">
+    ///         <item>
+    ///             Raw contains invalid toml. (Syntax errors)
+    ///         </item>
+    ///         <item>
+    ///             Not all expected configuration keys are present on the
+    ///             parsed toml model.
+    ///         </item>
+    ///         <item>
+    ///             Invalid key or key combination (not a key, wrong name for
+    ///             special key, duplicate keys in the same combination or too
+    ///             many keys in a single combination).
+    ///         </item>
+    ///     </list>
+    /// </exception>
     public static AklConfiguration FromString(string raw)
     {
         TomlAklConfiguration model;
@@ -49,7 +84,17 @@ public class AklConfiguration
         return configuration;
     }
 
-    // TODO: Write documentation
+    /// <summary>
+    ///     Creates a valid akl configuration from the specified origin.
+    /// </summary>
+    /// <param name="origin">
+    ///     A toml model which represents this configuration in it's raw form.
+    /// </param>
+    /// <exception cref="AklConfigurationParsingException">
+    ///     If any of the parsed values aren't valid when parsed to keys / key
+    ///     combinations or they aren't even present in the first place.
+    /// </exception>
+    /// <seealso cref="AklConfiguration.FromString(string)"/>
     private AklConfiguration(TomlAklConfiguration origin)
     {
         this.origin = origin;
