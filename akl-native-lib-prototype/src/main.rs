@@ -1,9 +1,11 @@
 mod debugger;
+mod events;
 mod send_input;
 mod translation;
 
-use std::ptr;
+use std::{collections::HashMap, ptr};
 
+use send_input::send_key_combination;
 use windows::Win32::{
     Foundation::{GetLastError, BOOL, HMODULE, LPARAM, LRESULT, WPARAM},
     System::Console::{SetConsoleCtrlHandler, CTRL_BREAK_EVENT, CTRL_CLOSE_EVENT, CTRL_C_EVENT},
@@ -15,11 +17,39 @@ use windows::Win32::{
 };
 
 use debugger::Debugger;
-use send_input::{type_char_key, type_virtual_key};
+use events::{Action, Event, EventProcessor, Key, KeyCombination};
 use translation::{translate_to_character, windows_to_virtual_key, VirtualKey};
 
 fn main() {
     Debugger::init();
+
+    let mut mappings = HashMap::new();
+
+    mappings.insert(key_combination!("h"), key_combination!("LeftArrow"));
+    mappings.insert(key_combination!("j"), key_combination!("DownArrow"));
+    mappings.insert(key_combination!("k"), key_combination!("UpArrow"));
+    mappings.insert(key_combination!("l"), key_combination!("RightArrow"));
+
+    // Some mor testing
+    mappings.insert(key_combination!("t"), key_combination!("😊"));
+    mappings.insert(key_combination!("LShift" + "t"), key_combination!("A" + "B" + "C"));
+    mappings.insert(key_combination!("LAlt" + "t"), key_combination!("."));
+    mappings.insert(key_combination!("LMeta" + "t"), key_combination!("^" + "a"));
+
+    Debugger::write(&format!("Mappings: {mappings:?}"));
+
+    unsafe {
+        STATE.event_processor.replace(EventProcessor::new(
+            Key::Virtual(VirtualKey::CapsLock),
+            Some(
+                [Key::Virtual(VirtualKey::Escape)]
+                    .as_slice()
+                    .try_into()
+                    .unwrap(),
+            ),
+            mappings,
+        ))
+    };
 
     let keyboard_hook = HookHandle::register(
         "global raw keyboard".to_owned(),
@@ -122,7 +152,23 @@ impl Drop for HookHandle {
     }
 }
 
-static mut BLOCKED: bool = false;
+pub struct NativeKeyboardInputHook {
+    event_processor: Option<EventProcessor>,
+    currently_writing: bool,
+}
+
+impl NativeKeyboardInputHook {
+    const fn new() -> Self {
+        Self {
+            event_processor: None,
+            currently_writing: false,
+        }
+    }
+}
+
+// TODO: Write safety comments for this state (about calling this hook from the
+// same thread from the message queue (run_message_queue) which is single threaded)
+static mut STATE: NativeKeyboardInputHook = NativeKeyboardInputHook::new();
 
 // See https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc
 unsafe extern "system" fn raw_keyboard_input_hook(
@@ -130,136 +176,49 @@ unsafe extern "system" fn raw_keyboard_input_hook(
     wparam: WPARAM,
     lparam: LPARAM,
 ) -> LRESULT {
+    let event_processor = STATE.event_processor.as_mut();
+    let currently_writing = &mut STATE.currently_writing;
+
     // As documented we can't handle any events that have a code lower than zero.
     // We should instead pass them to the next hook and return their result.
-    if code < 0 {
+    if code < 0 || *currently_writing || event_processor.is_none() {
         return CallNextHookEx(HHOOK(0), code, wparam, lparam);
     }
+
+    let event_processor = event_processor.unwrap();
 
     let event_pointer: *const KBDLLHOOKSTRUCT = std::mem::transmute(lparam);
     let event = event_pointer.as_ref().unwrap();
 
     // Try to translate the character from the keyboard event or use the unicode
     // replacement character "�" (https://compart.com/en/unicode/U+FFFD).
-    let translation = translate_to_character(event).unwrap_or('\u{FFFD}');
+    let mut key = Key::Text(translate_to_character(event).unwrap_or('\u{FFFD}'));
 
-    let formatted_event = windows_to_virtual_key(event.vkCode as u16).map_or_else(
-        || {
-            format!(
-                "Time: {} Raw: {:0>3} Key: {translation}",
-                event.time, event.scanCode
-            )
-        },
-        |virtual_key| {
-            format!(
-                "Time: {} Raw: {:0>3} Key: {virtual_key:?} ({:#X})",
-                event.time, event.scanCode, event.vkCode
-            )
-        },
-    );
-
-    let virtual_key = windows_to_virtual_key(event.vkCode as u16);
-
-    match wparam.0 as u32 {
-        WM_KEYDOWN => {
-            Debugger::write(&format!("{formatted_event} Down"));
-
-            // TODO: In the core system lib there should be an extra variable
-            // for if we are writing a character ourselves. So that there aren't
-            // any weird bugs because of processing events that were caused by
-            // a call to send input from in here.
-
-            if BLOCKED {
-                BLOCKED = false;
-
-                match translation {
-                    'h' => {
-                        type_virtual_key(VirtualKey::LeftArrow);
-
-                        BLOCKED = true;
-                        return LRESULT(1);
-                    }
-                    'j' => {
-                        type_virtual_key(VirtualKey::DownArrow);
-
-                        BLOCKED = true;
-                        return LRESULT(1);
-                    }
-                    'k' => {
-                        type_virtual_key(VirtualKey::UpArrow);
-
-                        BLOCKED = true;
-                        return LRESULT(1);
-                    }
-                    'l' => {
-                        type_virtual_key(VirtualKey::RightArrow);
-
-                        BLOCKED = true;
-                        return LRESULT(1);
-                    }
-                    't' => {
-                        type_char_key('H');
-                        type_char_key('a');
-                        type_char_key('l');
-                        type_char_key('l');
-                        type_char_key('o');
-                        type_char_key(',');
-                        type_char_key(' ');
-                        type_char_key('W');
-                        type_char_key('e');
-                        type_char_key('l');
-                        type_char_key('t');
-                        type_char_key('!');
-
-                        BLOCKED = true;
-                        return LRESULT(1);
-                    }
-                    's' => {
-                        // Testing that characters outside the base plain work
-                        // too, because they are going to be encoded in two
-                        // u16s and send as separate key strokes.
-                        //
-                        // See https://en.wikipedia.org/wiki/Plane_(Unicode)
-                        // and https://stackoverflow.com/a/22308727
-                        type_char_key('😀');
-
-                        BLOCKED = true;
-                        return LRESULT(1);
-                    }
-                    _ => (),
-                }
-            }
-
-            if let Some(virtual_key) = virtual_key {
-                if virtual_key == VirtualKey::CapsLock {
-                    Debugger::write("Start blocking...");
-                    BLOCKED = true;
-                    return LRESULT(1);
-                }
-            }
-        }
-        WM_KEYUP => {
-            Debugger::write(&format!("{formatted_event} Up"));
-
-            if let Some(virtual_key) = virtual_key {
-                if virtual_key == VirtualKey::CapsLock {
-                    BLOCKED = false;
-                    Debugger::write("Stopped blocking.");
-                    type_virtual_key(VirtualKey::Escape);
-                    return LRESULT(1);
-                }
-            }
-        }
-        WM_SYSKEYDOWN => Debugger::write(&format!("{formatted_event} SysDown")),
-        WM_SYSKEYUP => Debugger::write(&format!("{formatted_event} SysUp")),
-        _ => (),
+    if let Some(virtual_key) = windows_to_virtual_key(event.vkCode as u16) {
+        key = Key::Virtual(virtual_key);
     }
 
-    if BLOCKED {
-        return LRESULT(1);
-    }
+    let action = match wparam.0 as u32 {
+        WM_KEYDOWN | WM_SYSKEYDOWN=> Action::Press,
+        WM_KEYUP | WM_SYSKEYUP => Action::Release,
+        _ => unreachable!("See https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc#wparam-in"),
+    };
 
-    CallNextHookEx(HHOOK(0), code, wparam, lparam)
+    let event = Event { action, key };
+    let change_request = event_processor.process(event);
+
+    Debugger::write(&format!("{event:?} => {change_request:?}"));
+
+    match change_request {
+        events::ChangeEventRequest::Block => LRESULT(1),
+        events::ChangeEventRequest::ReplaceWith(key_combination) => {
+            *currently_writing = true;
+            send_key_combination(key_combination);
+            *currently_writing = false;
+            LRESULT(1)
+        }
+        events::ChangeEventRequest::None => CallNextHookEx(HHOOK(0), code, wparam, lparam),
+    }
 }
 
 // A low level keyboard hook needs a message queue to be running in the case of

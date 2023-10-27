@@ -63,6 +63,17 @@ impl VirtualKey {
 
 macro_rules! windows_virtual_key_code_to_virtual_key_translations {
     ($($name: ident = $translation: expr),*,) => {
+        impl TryFrom<&str> for VirtualKey {
+            type Error = ();
+
+            fn try_from(value: &str) -> Result<Self, Self::Error> {
+                match value {
+                    $(stringify!($name) => Ok(VirtualKey::$name),)*
+                    _ => Err(())
+                }
+            }
+        }
+
         impl TryFrom<VIRTUAL_KEY> for VirtualKey {
             type Error = ();
 

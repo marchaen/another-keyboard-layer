@@ -66,6 +66,7 @@ und im Build-Vorgang automatisch CSharp Bindings für dieses generieren.
 Darstellung der Verarbeitung der Tastaturanschläge unabhängig vom
 Betriebssystem.
 
+.Strukturierung
 [plantuml, target="keyboard-input-event-abstraction", format=svg]
 ....
 @startuml
@@ -93,7 +94,12 @@ enum ChangeEventRequest {
 }
 
 class EventProcessor {
-    currently_pressed: HashSet<Key>
+    switch_key: Key,
+    default_combination: Option<KeyCombination>,
+    mappings: HashMap<KeyCombination, KeyCombination>,
+    currently_pressed: Vec<Key>,
+    block_events: bool,
+    key_combination_executed: bool,
     +process(event: Event) -> ChangeEventRequest
 }
 
@@ -115,7 +121,79 @@ Event *- Key
 Action -* Event
 EventProcessor - ChangeEventRequest
 EventProcessor -- Event
-NativeInputHook *-- EventProcessor
+NativeInputHook -- EventProcessor : uses to process events
+
+@enduml
+....
+
+.Verarbeitung von Events
+[plantuml, target="keyboard-input-event-flow", format=svg]
+....
+@startuml
+!theme reddress-darkblue
+
+start
+
+if (Action is **press**?) then (yes)
+    if (Key is switch key?) then (yes)
+        :Set block events = true;
+        :Clear currently pressed keys;
+        :Return block event>
+        detach
+    else (no)
+    endif
+
+    if (Don't block events?) then (yes)
+        :Return don't change event>
+        detach
+    else (no)
+    endif
+
+    :Add key to currently pressed keys;
+    :Create key combination from pressed keys;
+
+    if (Key combination is target for replacement?) then (yes)
+        :Set key combination executed = true;
+        :Remove current key from currently pressed;
+        :Return replace with replacement combination>
+        detach
+    else (no)
+    endif
+
+    :Return block event>
+elseif (Action is **release**?) then (yes)
+    if (Key is switch key?) then (yes)
+        :Set block events = false;
+
+        if (Not key combination executed and default combination is set?) then (yes)
+            :Return replace with default combination>
+            detach
+        else (no)
+        endif
+        
+        :Reset key combination executed flag;
+        :Return block event>
+        detach
+    else (no)
+        if (Key in currently pressed?) then (yes)
+            :Remove key from currently pressed keys;
+
+            if (Block events is true?) then (yes)
+                :Return block event>
+                detach
+            else (no)
+            endif
+        else (no)
+        endif
+    endif
+
+    :Return don't change event>
+else (invalid action data)
+    :Skip event;
+    detach
+endif
+
+stop
 
 @enduml
 ....
