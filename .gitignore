@@ -455,3 +455,7 @@ documentation-build
 
 # Automatically generated native library bindings
 AKL.Common/bindings
+
+# Build artifcats of the debug builds for akl-core-system-lib
+build-win
+build-linux

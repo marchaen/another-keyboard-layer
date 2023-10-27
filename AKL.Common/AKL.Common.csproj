@@ -57,9 +57,9 @@
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
 
     <!-- Compile debug server -->
-    <Exec Command="cross build --release --target x86_64-pc-windows-gnu --bin debug-server"
+    <Exec Command="cross build --release --target x86_64-pc-windows-gnu --bin debug-server --target-dir build-win"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
-    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu --bin debug-server"
+    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu --bin debug-server --target-dir build-linux"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
 
     <!-- Copy generated bindings from the native lib -->
@@ -73,7 +73,7 @@
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
-      <Content Include="../akl-core-system-lib/target/x86_64-pc-windows-gnu/release/debug-server.exe">
+      <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/release/debug-server.exe">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
