@@ -45,7 +45,6 @@ public class Application
             };
 
         virtualLayer = new VirtualLayer(configuration);
-        virtualLayer.Update();
     }
 
     private void Update(string path)
@@ -73,6 +72,16 @@ public class Application
 
     public void Run()
     {
+        if (SingleInstanceChecker.IsOtherAlreadyRunning("akl-application"))
+        {
+            ColorPrinter.WriteError(
+                "Another akl application is already running."
+            );
+            Environment.Exit(1);
+            return;
+        }
+
+        virtualLayer.Update();
         Console.WriteLine("Quit with Ctrl + C");
 
         while (true)
