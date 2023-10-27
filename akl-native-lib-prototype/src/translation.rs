@@ -2,10 +2,10 @@
 use windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY;
 
 #[cfg(not(target_os = "windows"))]
-use xkeysym::Keysym as X11Key;
+use xkbcommon::xkb::Keysym as X11Key;
 
 macro_rules! virtual_key_code_to_virtual_key_translations {
-    ($($name: ident: win = $windows_translation: expr, x11 = $($x11_translation: ident $(|)?)+),*,) => {
+    ($($name: ident: win = $windows_translation: expr, x11 = $($x11_translation: ident $(|)?)+),* $(,)?) => {
         #[allow(missing_docs)]
         #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
         #[repr(u8)]

@@ -18,8 +18,23 @@ windows = { version = "0.48.0", features = [
 ] }
 
 [target.'cfg(not(windows))'.dependencies]
-x11rb = "0.12.0"
-xkeysym = "0.2.0"
+x11rb = { version = "0.12.0", features = ["allow-unsafe-code", "xkb", "dl-libxcb"] }
+xkbcommon = { version = "0.6", features = ["x11"] }
+libxdo = "0.6.0"
+
+[package.metadata.cross.target.x86_64-unknown-linux-gnu]
+pre-build = ["""
+apt-get update && apt-get install --assume-yes \
+    libx11-dev \
+    libxinerama-dev \
+    libxtst-dev \
+    libxkbcommon-dev \
+    libxkbcommon-x11-dev
+"""]
+
+[build-dependencies]
+cc = "1.0.83"
+pkg-config = "0.3.27"
 
 [profile.release]
 strip = true
