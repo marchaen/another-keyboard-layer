@@ -1,5 +1,8 @@
 = Another Keyboard Layer
 :nofooter:
+:toc: preamble
+:toc-title: Inhaltsverzeichnis
+:note-caption: Anmerkung
 :experimental:
 ifdef::commit-hash[]
 :revdate: {docdatetime}
@@ -10,16 +13,56 @@ endif::[]
 
 Programm das einen weiteren Tastaturlayer emuliert.
 
-Auf diesen virtuellen Layer können schwer zu erreichende Tasten oder 
-komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit 
+Auf diesen virtuellen Layer können schwer zu erreichende Tasten oder
+komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit
 einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden.
 
 == Features
 
 - Konfigurierbare Layer-Umschalttaste
-- Standarttaste die gesendet wird, für den Fall das keine Taste im virtuellen 
+- Standarttaste die gesendet wird, für den Fall das keine Taste im virtuellen
 Layer gedruckt wurde.
 - Sprachunabhängige Implementation der Tastenwerte
 - Textbasierte und auch graphische Konfigurationsmöglichkeiten
 
-// TODO: Informationen über Komponenten, Features, Verwendete Bibliotheken, etc.
+== Komponenten
+
+Um GUI-Entwicklung mit C# und Interfacing von Native Bibliotheken, die in
+anderen Programmiersprachen geschrieben wurden, mit C# zu lernen, wird das
+Programm in folgende Komponenten aufgeteilt.
+
+=== Kern (akl-core-system-lib)
+
+Der Kern wird in Rust geschrieben und wird direkt mit dem jeweiligen
+Betriebssystem interagieren, um global Tastaturevents abzuhören und wie
+konfiguriert zu verändern. Außerdem wird der Kern ein C Interface bereit stellen
+und im Build-Vorgang automatisch CSharp Bindings für dieses generieren.
+
+.Relevante Tools und Bibliotheken
+- https://github.com/Narsil/rdev
+- https://github.com/Cysharp/csbindgen
+
+=== Graphische Benutzerschnittstelle (AKL.Gui)
+
+Die graphische Benutzerschnittstelle bietet eine Möglichkeit den virtuellen
+Layer komplett zu konfigurieren und diesen zu aktivieren oder zu deaktivieren.
+Zu konfigurierende Werte sind unter anderem der Umschalter, die Taste welche bei
+schnellem Drücken des Umschalters ohne eine weitere Taste simuliert werden soll
+und die eigentlichen Mappings. Des Weiteren dient dieses Modul dem Erlernen der
+GUI Programmierung mit dem https://github.com/AvaloniaUI/Avalonia[Avalonia]
+Framework, welches von der Struktur sehr stark
+https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-wpf?view=vs-2022#what-is-wpf[WPF]
+ähnelt.
+
+=== Textbasierte Benutzerschnittstelle (AKL.Cli)
+
+Zusätzlich zur graphischen Schnittstelle soll die textbasierte
+Benutzerschnittstelle ein kleiner Wrapper um den Kern sein, der diesen nur mit
+Hilfe der gespeicherten Konfiguration vom GUI initialisiert, außerdem sollte
+für die Implementierung, Microsofts eigens für das Entwickeln von CLIs erstellte
+Bibliothek https://github.com/dotnet/command-line-api[System.CommandLine]
+verwendet werden.
+
+NOTE: Die Konfiguration soll im https://en.wikipedia.org/wiki/TOML[TOML] format
+gespeichert werden und in C# mit https://github.com/xoofx/Tomlyn[Tomlyn]
+verarbeitet werden.
