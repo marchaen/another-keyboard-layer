@@ -1,10 +1,13 @@
 use crate::Configuration;
 
+use log::info;
+
 use windows::Win32::{
     Foundation::{HMODULE, LPARAM, LRESULT, WPARAM},
-    UI::WindowsAndMessaging::{SetWindowsHookExW, HHOOK, WH_KEYBOARD_LL,
-        UnhookWindowsHookEx, CallNextHookEx, WM_KEYDOWN, WM_KEYUP, WM_SYSKEYUP,
-        WM_SYSKEYDOWN, KBDLLHOOKSTRUCT
+    UI::WindowsAndMessaging::{
+        CallNextHookEx, SetWindowsHookExW, UnhookWindowsHookEx, HHOOK,
+        KBDLLHOOKSTRUCT, WH_KEYBOARD_LL, WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN,
+        WM_SYSKEYUP,
     },
 };
 
@@ -27,7 +30,7 @@ impl AklHandle {
             self.unregister();
         }
 
-        println!("Registering...");
+        info!("Registering hook...");
 
         let register_result = unsafe {
             // Details and safety see:
@@ -44,16 +47,15 @@ impl AklHandle {
             Ok(hook) => self.hook = Some(hook),
             Err(error) => panic!(
                 "Trying to register a global keyboard event listener failed: {} ({})", 
-                error.message().to_string_lossy(), 
+                error.message().to_string_lossy(),
                 error.code()
             )
         }
     }
 
     pub fn unregister(&mut self) {
-        println!("Unregistering...");
-
         if let Some(hook) = self.hook {
+            info!("Unregistering hook...");
             // It doesn't matter for us if this fails, because the application stops
             // anyway or tries to re register and gets a detailed error there.
             let _ = unsafe {

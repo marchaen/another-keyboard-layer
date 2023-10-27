@@ -7,16 +7,10 @@ pub struct AklHandle {
 
 impl AklHandle {
     pub fn new(configuration: Configuration) -> Self {
-        Self {
-            configuration
-        }
+        Self { configuration }
     }
 
-    pub fn register(&mut self) {
+    pub fn register(&mut self) {}
 
-    }
-
-    pub fn unregister(&mut self) {
-
-    }
+    pub fn unregister(&mut self) {}
 }

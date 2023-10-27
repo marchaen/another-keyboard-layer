@@ -7,7 +7,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugSymbols>False</DebugSymbols>
     <DebugType>None</DebugType>
   </PropertyGroup>
@@ -24,7 +24,15 @@
     </Content>
   </ItemGroup>
   
-  <Target Name="BuildNativeLibrary" BeforeTargets="PrepareForBuild">
+  <!-- 
+    Build native library with the specified configuration.
+
+    The differences between release and debug are the invocation of the cargo
+    command as well as the location of the compiled binaries and the additional
+    compilation of the debug server.
+  -->
+
+  <Target Name="BuildNativeLibraryRelease" BeforeTargets="PrepareForBuild" Condition="'$(Configuration)' == 'Release'">
     <!-- Crosscompile native lib for windows and linux -->
     <Exec Command="cross build --release --target x86_64-pc-windows-gnu --target-dir build-win"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
@@ -43,6 +51,52 @@
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
       <Content Include="../akl-core-system-lib/build-linux/x86_64-unknown-linux-gnu/release/*.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <PublishState>Included</PublishState>
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="BuildNativeLibraryDebug" BeforeTargets="PrepareForBuild" Condition="'$(Configuration)' == 'Debug'">
+    <!-- Crosscompile native lib for windows and linux -->
+    <Exec Command="cross build --target x86_64-pc-windows-gnu --target-dir build-win"
+      WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
+    <Exec Command="cross build --target x86_64-unknown-linux-gnu --target-dir build-linux"
+      WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" />
+
+    <!-- Compile debug server -->
+    <Exec Command="cross build --release --target x86_64-pc-windows-gnu --target-dir build-win --bin debug-server"
+      WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
+    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu --target-dir build-linux --bin debug-server"
+      WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
+
+    <!-- Copy generated bindings from the native lib -->
+    <Copy SourceFiles="../akl-core-system-lib/target/bindings/AklCoreNativeInterface.g.cs" 
+      DestinationFolder="./bindings/" />
+
+    <!-- Include native dynamic librarys as output files -->
+    <ItemGroup>
+
+      <!-- windows -->
+      <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/debug/*.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <PublishState>Included</PublishState>
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/release/debug-server.exe">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <PublishState>Included</PublishState>
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+
+      <!-- linux -->
+      <Content Include="../akl-core-system-lib/build-linux/x86_64-unknown-linux-gnu/debug/*.so">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <PublishState>Included</PublishState>
+          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
+      <Content Include="../akl-core-system-lib/build-linux/x86_64-unknown-linux-gnu/release/debug-server">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

@@ -173,7 +173,8 @@ pub extern "C" fn destroy_error_message(error_message: *mut i8) {
 /// Has to be passed back to rust for deallocation. See [destroy]
 #[no_mangle]
 pub extern "C" fn init() -> *mut AklContext {
-    Box::into_raw(Box::<AnotherKeyboardLayer>::default()).cast::<AklContext>()
+    Box::into_raw(Box::new(AnotherKeyboardLayer::initialize()))
+        .cast::<AklContext>()
 }
 
 /// Destroys the akl context by dropping it. This means the Drop implementation

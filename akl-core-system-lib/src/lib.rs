@@ -14,7 +14,7 @@ use key::{Key, KeyCombination};
 #[derive(Error, Debug)]
 pub enum AklError {
     #[error("The switch key has to be some value before starting akl.")]
-    NotInitialized,
+    NotConfigured,
     #[error("Akl is already running.")]
     AlreadyRunning,
     #[error("Akl was already stopped.")]
@@ -28,14 +28,46 @@ pub struct Configuration {
     pub mappings: collections::HashMap<KeyCombination, KeyCombination>,
 }
 
-#[derive(Default)]
 pub struct AnotherKeyboardLayer {
     pub configuration: Configuration,
     handle: Option<AklHandle>,
 }
 
 impl AnotherKeyboardLayer {
-    fn is_not_initialized(&self) -> bool {
+    fn initialize() -> Self {
+        #[cfg(debug_assertions)]
+        {
+            use log::LevelFilter;
+            use simplelog::{ConfigBuilder, ThreadLogMode, WriteLogger};
+
+            if let Ok(connection) =
+                std::net::TcpStream::connect("127.0.0.1:7777")
+            {
+                let config = {
+                    match ConfigBuilder::new()
+                        .set_thread_level(LevelFilter::Error)
+                        .set_thread_mode(ThreadLogMode::Both)
+                        .set_target_level(LevelFilter::Error)
+                        .set_time_offset_to_local()
+                    {
+                        Ok(config_builder) | Err(config_builder) => {
+                            config_builder.build()
+                        }
+                    }
+                };
+
+                let _ =
+                    WriteLogger::init(LevelFilter::Trace, config, connection);
+            }
+        }
+
+        Self {
+            configuration: Default::default(),
+            handle: Default::default(),
+        }
+    }
+
+    fn is_not_configured(&self) -> bool {
         matches!(self.configuration.switch_key, None)
     }
 
@@ -45,8 +77,8 @@ impl AnotherKeyboardLayer {
     }
 
     pub fn start(&mut self) -> Result<(), AklError> {
-        if self.is_not_initialized() {
-            return Err(AklError::NotInitialized);
+        if self.is_not_configured() {
+            return Err(AklError::NotConfigured);
         }
 
         if self.is_running() {

@@ -3,12 +3,18 @@ name = "akl-core-system-lib"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "debug-server"
+path = "debug-server.rs"
+
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
 thiserror = "1.0.44"
 num_enum = "0.7.0"
+log = { version = "0.4.20", features = ["release_max_level_off"] }
+simplelog = { version = "0.12.1", default-features = false, features = ["local-offset"] }
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.48.0", features = [
