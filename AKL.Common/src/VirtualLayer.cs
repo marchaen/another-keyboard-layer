@@ -30,11 +30,15 @@ public unsafe class VirtualLayer
 
         if (Configuration.DefaultCombination != null)
             AklCoreNativeInterface.set_default_combination(akl, Configuration.DefaultCombination.ToFfi());
+        else
+            AklCoreNativeInterface.set_default_combination(akl, new FfiKeyCombination());
 
         AklCoreNativeInterface.clear_mappings(akl);
 
         foreach (KeyValuePair<KeyCombination, KeyCombination> mapping in Configuration.Mappings)
         {
+            // At this point no invalid key combination can exist so this method
+            // should never cause an error.
             AklCoreNativeInterface.add_mapping(akl, mapping.Key.ToFfi(), mapping.Value.ToFfi());
         }
 

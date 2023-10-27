@@ -1,7 +1,11 @@
 //! See the ffi module for usage instructions and general documentation.
 
 mod ffi;
+mod handle;
 
+use handle::AklHandle;
+
+use num_enum::TryFromPrimitive;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -14,21 +18,26 @@ pub enum AklError {
     AlreadyStopped,
 }
 
-#[derive(Default)]
-pub struct AnotherKeyboardLayer {
+#[derive(Default, Clone)]
+pub struct Configuration {
     pub switch_key: Option<Key>,
     pub default_combination: Option<KeyCombination>,
     pub mappings: std::collections::HashMap<KeyCombination, KeyCombination>,
-    worker: Option<()>, // Model the worker
+}
+
+#[derive(Default)]
+pub struct AnotherKeyboardLayer {
+    pub configuration: Configuration,
+    handle: Option<AklHandle>,
 }
 
 impl AnotherKeyboardLayer {
     fn is_not_initialized(&self) -> bool {
-        matches!(self.switch_key, None)
+        matches!(self.configuration.switch_key, None)
     }
 
     pub fn is_running(&self) -> bool {
-        matches!(self.worker, Some(_))
+        matches!(self.handle, Some(_))
     }
 
     pub fn start(&mut self) -> Result<(), AklError> {
@@ -40,7 +49,11 @@ impl AnotherKeyboardLayer {
             return Err(AklError::AlreadyRunning);
         }
 
-        unimplemented!()
+        let mut handle = AklHandle::new(self.configuration.clone());
+        handle.register();
+        self.handle = Some(handle);
+
+        Ok(())
     }
 
     pub fn stop(&mut self) -> Result<(), AklError> {
@@ -48,7 +61,10 @@ impl AnotherKeyboardLayer {
             return Err(AklError::AlreadyStopped);
         }
 
-        unimplemented!()
+        let mut handle = self.handle.take().unwrap();
+        handle.unregister();
+
+        Ok(())
     }
 }
 
@@ -60,14 +76,17 @@ impl Drop for AnotherKeyboardLayer {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Key {
     Text(char),
     Virtual(VirtualKey),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct KeyCombination(Key, Option<Key>, Option<Key>, Option<Key>);
 
 #[allow(missing_docs)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, TryFromPrimitive)]
 #[repr(u8)]
 pub enum VirtualKey {
     Back,
