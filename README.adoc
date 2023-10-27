@@ -101,31 +101,31 @@ verarbeitet werden.
 @startuml
 !theme reddress-darkblue
 
-enum SpecialKeys {
-    Ctrl,
+enum VirtualKeyCode {
+    Control,
     Shift,
     Space,
     ...
 }
 
-note left of SpecialKeys::...
+note left of VirtualKeyCode::...
 Steht für die restlichen Special / Named Keys, allerdings
 macht es keinen Sinn diese hier aufzulisten.
 end note
 
 enum KeyKind {
-    Simple,
-    Special
+    Text,
+    Virtual
 }
 
 class Key {
-    {field} -SpecialKey? specialKey
-    {field} -Char? unicodeKey
+    {field} -VirtualKeyCode? virtualKey
+    {field} -Char? textKey
     {field} -KeyKind kind
     {static} {method} +Key TryParse(string raw)
 }
 
-Key *-- SpecialKeys
+Key *-- VirtualKeyCode
 Key *-- KeyKind
 
 class KeyCombination {
