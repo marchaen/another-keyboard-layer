@@ -8,12 +8,15 @@
 // The dead code is used from the language that is interfacing with this library.
 #![allow(dead_code)]
 
-use crate::{AnotherKeyboardLayer, Key, KeyCombination, VirtualKey};
+use crate::{
+    key::Key, key::KeyCombination, key::VirtualKey, AnotherKeyboardLayer,
+};
 
 /// Pointer type for methods that require an instance of
-/// [AnotherKeyboardLayer](crate::AnotherKeyboardLayer) to make sure no data can
-/// be corrupted from the c# site easily. Creating a pointer type isn't required
-/// for ffi but makes the api a bit nicer because there aren't any `*void` used.
+/// [`AnotherKeyboardLayer`](crate::AnotherKeyboardLayer) to make sure no data
+/// can be corrupted from the c# site easily. Creating a pointer type isn't
+/// required for ffi but makes the api a bit nicer because there aren't any
+/// `*void` used.
 #[repr(C)]
 pub struct AklContext;
 
@@ -21,15 +24,18 @@ pub struct AklContext;
 ///
 /// # Safety
 ///
-/// The returned reference has a static lifetime but is only valid as long as
-/// the raw context is also valid. Never hold on to this reference for a longer
-/// time than the corresponding pointer.
+/// The returned reference has an arbitrary lifetime but is only valid for as
+/// long as the raw context is also valid. Never hold on to this reference for a
+/// longer time than the corresponding pointer. (Although holding one doesn't
+/// mean the underlying memory can't be deallocated and thus cause ub anyway.)
 #[inline(always)]
-fn akl_from_raw(raw: *mut AklContext) -> &'static mut AnotherKeyboardLayer {
-    unsafe { &mut *(raw as *mut AnotherKeyboardLayer) }
+fn akl_from_raw<'arbitrary>(
+    raw: *mut AklContext,
+) -> &'arbitrary mut AnotherKeyboardLayer {
+    unsafe { &mut *raw.cast::<AnotherKeyboardLayer>() }
 }
 
-/// A ffi safe representation of a [key](crate::Key) which is used to transfer
+/// A ffi safe representation of a [`key`](crate::Key) which is used to transfer
 /// from the c# key type safely.
 #[repr(C)]
 pub struct FfiKey {
@@ -42,14 +48,14 @@ pub struct FfiKey {
     kind: FfiKeyKind,
 }
 
-/// Indicates the type of key stored in [FfiKey].
+/// Indicates the type of key stored in [`FfiKey`].
 #[repr(u8)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
 pub enum FfiKeyKind {
     /// A single character such as 'a', 'ü' or 'è'
     Text,
     /// Any key that doesn't produce text when pressed.
-    /// See also [VirtualKey](crate::VirtualKey) in the implementation.
+    /// See also [VirtualKey](crate::key::VirtualKey) in the implementation.
     Virtual,
     /// No key at all, unfortunately ffi doesn't allow us to represent a key
     /// combination with `Option`-types so this is the easiest solution for
@@ -87,7 +93,8 @@ impl TryFrom<FfiKey> for Key {
 }
 
 /// Ffi save representation of a [key combination](crate::KeyCombination) which
-/// uses the [FfiKeyKind::None] variant to represent an undefined / missing key.
+/// uses the [`FfiKeyKind::None`] variant to represent an undefined / missing
+/// key.
 ///
 /// **Caution**: This struct can represent an invalid key combination if all
 /// keys are set to none by the caller.
@@ -108,12 +115,15 @@ impl TryFrom<FfiKeyCombination> for KeyCombination {
             first_key.unwrap()
         };
 
-        Ok(KeyCombination(
-            first_key,
+        [
+            Some(first_key),
             value.1.try_into().ok(),
             value.2.try_into().ok(),
             value.3.try_into().ok(),
-        ))
+        ]
+        .as_slice()
+        .try_into()
+        .map_err(|_| ())
     }
 }
 
@@ -131,7 +141,7 @@ impl FfiResult {
     fn ok() -> Self {
         Self {
             has_error: false,
-            error_message: std::ptr::null::<i8>() as *mut i8,
+            error_message: std::ptr::null::<i8>().cast_mut(),
         }
     }
 
@@ -163,19 +173,20 @@ pub extern "C" fn destroy_error_message(error_message: *mut i8) {
 /// Has to be passed back to rust for deallocation. See [destroy]
 #[no_mangle]
 pub extern "C" fn init() -> *mut AklContext {
-    Box::into_raw(Box::<AnotherKeyboardLayer>::default()) as *mut AklContext
+    Box::into_raw(Box::<AnotherKeyboardLayer>::default()).cast::<AklContext>()
 }
 
 /// Destroys the akl context by dropping it. This means the Drop implementation
 /// will be run and thus deactivate another keyboard layer.
 #[no_mangle]
 pub extern "C" fn destroy(raw_context: *mut AklContext) {
-    let _ = unsafe { Box::from_raw(raw_context as *mut AnotherKeyboardLayer) };
+    let _ =
+        unsafe { Box::from_raw(raw_context.cast::<AnotherKeyboardLayer>()) };
 }
 
 /// Tries to start another keyboard layer. Fails if the switch key wasn't set
 /// yet or if it is already running. See
-/// [start](crate::AnotherKeyboardLayer::start)-method of AnotherKeyboardLayer.
+/// [start](crate::AnotherKeyboardLayer::start)-method of `AnotherKeyboardLayer`.
 #[no_mangle]
 pub extern "C" fn start(raw_context: *mut AklContext) -> FfiResult {
     let akl = akl_from_raw(raw_context);
@@ -227,7 +238,7 @@ pub extern "C" fn set_switch_key(
         akl.configuration.switch_key = Some(key);
         FfiResult::ok()
     } else {
-        FfiResult::error("Parsing the key contains an invalid value.")
+        FfiResult::error("Trying to parse the key failed (invalid value).")
     }
 }
 
@@ -305,6 +316,7 @@ pub extern "C" fn remove_mapping(
     previous.is_some()
 }
 
+/// Clears all mappings. Doesn't update the currently running layer.
 #[no_mangle]
 pub extern "C" fn clear_mappings(raw_context: *mut AklContext) {
     akl_from_raw(raw_context).configuration.mappings.clear();

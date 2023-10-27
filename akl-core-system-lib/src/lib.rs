@@ -2,11 +2,12 @@
 
 mod ffi;
 mod handle;
+mod key;
 
 use handle::AklHandle;
 
-use num_enum::TryFromPrimitive;
 use thiserror::Error;
+use key::{Key, KeyCombination};
 
 #[derive(Error, Debug)]
 pub enum AklError {
@@ -36,6 +37,7 @@ impl AnotherKeyboardLayer {
         matches!(self.configuration.switch_key, None)
     }
 
+    #[must_use]
     pub fn is_running(&self) -> bool {
         matches!(self.handle, Some(_))
     }
@@ -76,130 +78,4 @@ impl Drop for AnotherKeyboardLayer {
             let _ = self.stop();
         }
     }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum Key {
-    Text(char),
-    Virtual(VirtualKey),
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct KeyCombination(Key, Option<Key>, Option<Key>, Option<Key>);
-
-#[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, TryFromPrimitive)]
-#[repr(u8)]
-pub enum VirtualKey {
-    Back,
-    Tab,
-    Clear,
-    Return,
-    Shift,
-    Control,
-    Alt,
-    Pause,
-    CapsLock,
-    // Kana key on Japanese and Hangul key on Korean keyboards
-    KanaOrHangul,
-    ImeOn,
-    Junja,
-    Final,
-    // Kanji key on Japanese and Hanja key on Korean keyboards
-    KanjiOrHanja,
-    ImeOff,
-    Escape,
-    ImeConvert,
-    ImeNonconvert,
-    ImeAccept,
-    ImeModechange,
-    Space,
-    PageUp,
-    PageDown,
-    End,
-    Home,
-    LeftArrow,
-    UpArrow,
-    RightArrow,
-    DownArrow,
-    Select,
-    Print,
-    Execute,
-    PrintScreen,
-    Insert,
-    Delete,
-    Help,
-    LMeta,
-    RMeta,
-    Apps,
-    Sleep,
-    Numpad0,
-    Numpad1,
-    Numpad2,
-    Numpad3,
-    Numpad4,
-    Numpad5,
-    Numpad6,
-    Numpad7,
-    Numpad8,
-    Numpad9,
-    Multiply,
-    Add,
-    Separator,
-    Subtract,
-    Decimal,
-    Divide,
-    F1,
-    F2,
-    F3,
-    F4,
-    F5,
-    F6,
-    F7,
-    F8,
-    F9,
-    F10,
-    F11,
-    F12,
-    F13,
-    F14,
-    F15,
-    F16,
-    F17,
-    F18,
-    F19,
-    F20,
-    F21,
-    F22,
-    F23,
-    F24,
-    Numlock,
-    Scroll,
-    LShift,
-    RShift,
-    LControl,
-    RControl,
-    LAlt,
-    RAlt,
-    BrowserBack,
-    BrowserForward,
-    BrowserRefresh,
-    BrowserStop,
-    BrowserSearch,
-    BrowserFavorites,
-    BrowserHome,
-    VolumeMute,
-    VolumeDown,
-    VolumeUp,
-    MediaNextTrack,
-    MediaPrevTrack,
-    MediaStop,
-    MediaPlayPause,
-    LaunchMail,
-    LaunchMediaSelect,
-    LaunchApp1,
-    LaunchApp2,
-    Processkey,
-    Play,
-    Zoom,
 }
