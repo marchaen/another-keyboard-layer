@@ -1,4 +1,5 @@
 mod debugger;
+mod send_input;
 mod translation;
 
 use std::ptr;
@@ -14,6 +15,7 @@ use windows::Win32::{
 };
 
 use debugger::Debugger;
+use send_input::{type_char_key, type_virtual_key};
 use translation::{translate_to_character, windows_to_virtual_key, VirtualKey};
 
 fn main() {
@@ -159,8 +161,74 @@ unsafe extern "system" fn raw_keyboard_input_hook(
     let virtual_key = windows_to_virtual_key(event.vkCode as u16);
 
     match wparam.0 as u32 {
-        WM_KEYDOWN => { 
+        WM_KEYDOWN => {
             Debugger::write(&format!("{formatted_event} Down"));
+
+            // TODO: In the core system lib there should be an extra variable
+            // for if we are writing a character ourselves. So that there aren't
+            // any weird bugs because of processing events that were caused by
+            // a call to send input from in here.
+
+            if BLOCKED {
+                BLOCKED = false;
+
+                match translation {
+                    'h' => {
+                        type_virtual_key(VirtualKey::LeftArrow);
+
+                        BLOCKED = true;
+                        return LRESULT(1);
+                    }
+                    'j' => {
+                        type_virtual_key(VirtualKey::DownArrow);
+
+                        BLOCKED = true;
+                        return LRESULT(1);
+                    }
+                    'k' => {
+                        type_virtual_key(VirtualKey::UpArrow);
+
+                        BLOCKED = true;
+                        return LRESULT(1);
+                    }
+                    'l' => {
+                        type_virtual_key(VirtualKey::RightArrow);
+
+                        BLOCKED = true;
+                        return LRESULT(1);
+                    }
+                    't' => {
+                        type_char_key('H');
+                        type_char_key('a');
+                        type_char_key('l');
+                        type_char_key('l');
+                        type_char_key('o');
+                        type_char_key(',');
+                        type_char_key(' ');
+                        type_char_key('W');
+                        type_char_key('e');
+                        type_char_key('l');
+                        type_char_key('t');
+                        type_char_key('!');
+
+                        BLOCKED = true;
+                        return LRESULT(1);
+                    }
+                    's' => {
+                        // Testing that characters outside the base plain work
+                        // too, because they are going to be encoded in two
+                        // u16s and send as separate key strokes.
+                        //
+                        // See https://en.wikipedia.org/wiki/Plane_(Unicode)
+                        // and https://stackoverflow.com/a/22308727
+                        type_char_key('😀');
+
+                        BLOCKED = true;
+                        return LRESULT(1);
+                    }
+                    _ => (),
+                }
+            }
 
             if let Some(virtual_key) = virtual_key {
                 if virtual_key == VirtualKey::CapsLock {
@@ -169,18 +237,19 @@ unsafe extern "system" fn raw_keyboard_input_hook(
                     return LRESULT(1);
                 }
             }
-        },
+        }
         WM_KEYUP => {
             Debugger::write(&format!("{formatted_event} Up"));
 
             if let Some(virtual_key) = virtual_key {
                 if virtual_key == VirtualKey::CapsLock {
-                    Debugger::write("Stopped blocking.");
                     BLOCKED = false;
+                    Debugger::write("Stopped blocking.");
+                    type_virtual_key(VirtualKey::Escape);
                     return LRESULT(1);
                 }
             }
-        },
+        }
         WM_SYSKEYDOWN => Debugger::write(&format!("{formatted_event} SysDown")),
         WM_SYSKEYUP => Debugger::write(&format!("{formatted_event} SysUp")),
         _ => (),

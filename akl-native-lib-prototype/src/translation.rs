@@ -14,8 +14,9 @@ pub fn translate_to_character(event: &KBDLLHOOKSTRUCT) -> Option<char> {
         return None;
     }
 
-    // TODO: Cache the layout in a global variable and listen to
-    // WM_INPUTLANGCHANGE events to update it instead of querying it every time.
+    // Retrieving the keyboard layout takes on average four micro seconds on a
+    // relatively low powered device so even though the documentation talks
+    // about caching this information that just currently isn't worth it.
     // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeyboardlayout
     let keyboard_layout = unsafe { GetKeyboardLayout(0) };
 
