@@ -127,8 +127,6 @@ NOTE: Die Implementationen wurden mit der Hilfe von Prototypen entwickelt, damit
 die benötigten Funktionen (Tastaturevents blockieren und Tastenanschläge
 simulieren) einzeln herausgefunden werden können.
 
-=== Lösung für Linux
-
 == Komponenten
 
 Das Projekt Another Keyboard Layer ist in GUI, Cli, Common und Native / Core
