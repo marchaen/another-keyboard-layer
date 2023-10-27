@@ -74,16 +74,24 @@ public class Key
 
         Key other = (Key)obj;
 
-        return (this.virtualKey == other.virtualKey)
-            && (this.textKey == other.textKey)
-            && (this.kind == other.kind);
+        return this.virtualKey == other.virtualKey &&
+            this.textKey == other.textKey &&
+            this.kind == other.kind;
     }
 
     public override int GetHashCode()
     {
-        return this.virtualKey.GetHashCode()
-            | this.textKey.GetHashCode()
-            | this.kind.GetHashCode();
+        unchecked {
+            int hashcode = 1430287;
+
+            if (this.virtualKey != null)
+                hashcode = hashcode * 7302013 ^ (int) this.virtualKey; 
+
+            if (this.textKey != null)
+                hashcode = hashcode * 7302013 ^ this.textKey.GetHashCode(); 
+
+            return hashcode * 7302013 ^ (int) this.kind;
+        }
     }
 
 }

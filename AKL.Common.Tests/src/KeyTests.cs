@@ -47,9 +47,12 @@ public class KeyTests
             new Key(null, 'v', KeyKind.Text)
         });
         var parsed = KeyCombination.TryParse("Shift+v");
+        var switched = KeyCombination.TryParse("v+Shift");
 
         Assert.AreEqual(expectedCombination, parsed);
+        Assert.AreEqual(parsed, switched);
         Assert.AreEqual(expectedCombination.GetHashCode(), parsed.GetHashCode());
+        Assert.AreEqual(parsed.GetHashCode(), switched.GetHashCode());
 
         expectedCombination = new KeyCombination(new Key[] {
             new Key(VirtualKeyCode.Shift, null, KeyKind.Virtual),
@@ -58,9 +61,12 @@ public class KeyTests
             new Key(null, 'b', KeyKind.Text),
         });
         parsed = KeyCombination.TryParse("Shift+v+Space+b");
+        switched = KeyCombination.TryParse("Space+v+b+Shift");
 
         Assert.AreEqual(expectedCombination, parsed);
+        Assert.AreEqual(parsed, switched);
         Assert.AreEqual(expectedCombination.GetHashCode(), parsed.GetHashCode());
+        Assert.AreEqual(parsed.GetHashCode(), switched.GetHashCode());
 
         // Empty / null input
         Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse(""));

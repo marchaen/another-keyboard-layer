@@ -62,12 +62,37 @@ public class KeyCombination
 
         KeyCombination other = (KeyCombination)obj;
 
-        return this.GetHashCode() == other.GetHashCode();
+        if (this.keys.Length != other.keys.Length)
+            return false;
+
+        return this.keys.All((key) => other.keys.Contains(key));
     }
 
     public override int GetHashCode()
     {
-        return keys.Select((key) => key.GetHashCode()).Sum();
+        var first = this.keys.Length >= 1 ? this.keys[0] : null;
+        var second = this.keys.Length >= 2 ? this.keys[1] : null;
+        var third = this.keys.Length >= 3 ? this.keys[2] : null;
+        var fourth = this.keys.Length >= 4 ? this.keys[3] : null;
+
+        unchecked
+        {
+            int hashcode = 1430287;
+
+            if (first != null)
+                hashcode ^= first.GetHashCode();
+
+            if (second != null)
+                hashcode ^= second.GetHashCode();
+
+            if (third != null)
+                hashcode ^= third.GetHashCode();
+
+            if (fourth != null)
+                hashcode ^= fourth.GetHashCode();
+
+            return hashcode;
+        }
     }
 
 }
