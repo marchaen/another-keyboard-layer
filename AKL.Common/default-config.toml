@@ -3,8 +3,130 @@
 # Sets the key which should activate the virtual layer so that your mappings are
 # actually invoked when you press the specified target key combination.
 #
-# Following resource lists all possible named keys without the "VK" prefix.
-# https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+# **List of named keys** 
+#
+# This list is based on https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+# and was reduced as well as had some keys renamed to better fit the use case of
+# this application (cross platform, confusing names, etc.).
+#
+# General
+# - Escape
+# - Tab
+# - Space
+# - Back
+# - Return
+# - CapsLock
+# - Shift
+# - LShift
+# - RShift
+# - Control
+# - LControl
+# - RControl
+# - Alt
+# - LAlt
+# - RAlt
+# - LMeta (also known as letft windows key)
+# - RMeta (also known as right windows key)
+#
+# Extended keys (usually on the numpad when numlock off is and to the left of it)
+# - LeftArrow
+# - UpArrow
+# - RightArrow
+# - DownArrow
+# - Clear
+# - Insert
+# - Delete
+# - PrintScreen
+# - PageUp
+# - PageDown
+# - Scroll
+# - Home
+# - End
+# - Sleep
+# - Select
+# - Execute
+# - Help
+# - Apps
+# - Zoom
+# - Print
+# 
+# Numpad
+# - Numlock
+# - Numpad0
+# - Numpad1
+# - Numpad2
+# - Numpad3
+# - Numpad4
+# - Numpad5
+# - Numpad6
+# - Numpad7
+# - Numpad8
+# - Numpad9
+# - Add
+# - Subtract
+# - Multiply
+# - Divide
+# - Separator
+# - Decimal
+#
+# Function / application keys
+# - F1
+# - F2
+# - F3
+# - F4
+# - F5
+# - F6
+# - F7
+# - F8
+# - F9
+# - F10
+# - F11
+# - F12
+# - F13
+# - F14
+# - F15
+# - F16
+# - F17
+# - F18
+# - F19
+# - F20
+# - F21
+# - F22
+# - F23
+# - F24
+# - Play
+# - Pause
+# - VolumeMute
+# - VolumeDown
+# - VolumeUp
+# - MediaNextTrack
+# - MediaPrevTrack
+# - MediaStop
+# - MediaPlayPause
+# - BrowserBack
+# - BrowserForward
+# - BrowserRefresh
+# - BrowserStop
+# - BrowserSearch
+# - BrowserFavorites
+# - BrowserHome
+# - LaunchMail
+# - LaunchMediaSelect
+# - LaunchApp1
+# - LaunchApp2
+# - Processkey
+# 
+# Ime specific keys
+# - KanaOrHangul (Depends on the keyboard layout)
+# - ImeOn
+# - Junja
+# - Final
+# - KanjiOrHanja (Depends on the keyboard layout)
+# - ImeOff
+# - ImeConvert
+# - ImeNonconvert
+# - ImeAccept
+# - ImeModechange
 #
 # This program differentiates between "key" and "key combination" by wether a 
 # single key or multiple distinct keys on the keyboard are pressed. For example

@@ -209,10 +209,12 @@ pub enum VirtualKey {
     Alt,
     Pause,
     CapsLock,
+    // Kana key on Japanese and Hangul key on Korean keyboards
     KanaOrHangul,
     ImeOn,
     Junja,
     Final,
+    // Kanji key on Japanese and Hanja key on Korean keyboards
     KanjiOrHanja,
     ImeOff,
     Escape,
