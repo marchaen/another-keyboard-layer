@@ -59,7 +59,7 @@ public class Application
 
                 virtualLayer.Configuration = newConfiguration;
                 virtualLayer.Update();
-                ColorPrinter.WriteSucessful("Reload successful.");
+                ColorPrinter.WriteSuccessful("Reload successful.");
                 break;
             }
             catch (IOException)

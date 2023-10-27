@@ -7,7 +7,7 @@ namespace AKL.Cli;
 public class ColorPrinter
 {
 
-    public static void WriteSucessful(string message)
+    public static void WriteSuccessful(string message)
     {
         WriteWithColor(ConsoleColor.Green, message);
     }
