@@ -61,6 +61,65 @@ und im Build-Vorgang automatisch CSharp Bindings für dieses generieren.
 - https://github.com/Cysharp/csbindgen
 - https://learn.microsoft.com/en-us/windows/win32/inputdev/keyboard-input[Win32 Keyboard Input]
 
+==== Abstraktion der Tastaturanschläge in Events
+
+Darstellung der Verarbeitung der Tastaturanschläge unabhängig vom
+Betriebssystem.
+
+[plantuml, target="keyboard-input-event-abstraction", format=svg]
+....
+@startuml
+!theme reddress-darkblue
+
+enum Key {
+    Text(char)
+    Virtual(VirtualKey)
+}
+
+enum Action {
+    Press
+    Release
+}
+
+class Event {
+    key: Key
+    action: Action
+}
+
+enum ChangeEventRequest {
+    None
+    Block
+    ReplaceWith(KeyCombination)
+}
+
+class EventProcessor {
+    currently_pressed: HashSet<Key>
+    +process(event: Event) -> ChangeEventRequest
+}
+
+class NativeInputHook {
+    {static} processor: EventProcessor
+
+    ## native_input_handling ##
+
+}
+
+note right of NativeInputHook
+Zuständig für das Parsen von
+Rohevents und Ausführung von
+aus dem Processing entstehenden
+ChangeRequests.
+end note
+
+Event *- Key
+Action -* Event
+EventProcessor - ChangeEventRequest
+EventProcessor -- Event
+NativeInputHook *-- EventProcessor
+
+@enduml
+....
+
 === Graphische Benutzerschnittstelle (`AKL.Gui`)
 
 Die graphische Benutzerschnittstelle bietet eine Möglichkeit den virtuellen
