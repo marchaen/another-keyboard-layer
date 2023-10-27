@@ -14,8 +14,6 @@ public class ApplicationBuilder
 
     public static Application Build(FileInfo? configFile, bool watchConfig)
     {
-        var safeConfigFile = configFile ?? GetDefaultConfig();
-
         if (configFile != null && !configFile.Exists)
         {
             ColorPrinter.WriteError("The config option only accepts existing files.");
@@ -26,10 +24,10 @@ public class ApplicationBuilder
 
         try
         {
-            configurationProvider = AklConfigurationProvider.LoadFromFile(safeConfigFile);
-
-            if (!safeConfigFile.Exists)
-                configurationProvider.SaveToFile();
+            if (configFile != null)
+                configurationProvider = AklConfigurationProvider.LoadFromFile(configFile);
+            else
+                configurationProvider = AklConfigurationProvider.LoadFromDefaultLocation();
         }
         catch (AklConfigurationParsingException exception)
         {
@@ -39,7 +37,7 @@ public class ApplicationBuilder
 
         return new Application(
             configurationProvider.GetConfiguration(),
-            SetupFileWatcher(watchConfig, safeConfigFile)
+            SetupFileWatcher(watchConfig, configurationProvider.ConfigFile)
         );
     }
 

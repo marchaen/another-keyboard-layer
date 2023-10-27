@@ -12,6 +12,8 @@ public class Application
     private readonly VirtualLayer virtualLayer;
     private readonly FileSystemWatcher? watcher;
 
+    private DateTime lastChange = DateTime.MinValue;
+
     public Application(AklConfiguration configuration, FileSystemWatcher? watcher)
     {
         this.watcher = watcher;
@@ -22,17 +24,19 @@ public class Application
                 if (changeEvent.ChangeType != WatcherChangeTypes.Changed)
                     return;
 
+                DateTime lastWriteTime = File.GetLastWriteTime(changeEvent.FullPath);
+
+                if (lastWriteTime == lastChange)
+                {
+                    return;
+                }
+
+                lastChange = lastWriteTime;
                 Console.WriteLine("Trying to reload config file.");
 
                 try
                 {
-                    var newConfiguration = AklConfiguration.FromString(
-                        File.ReadAllText(changeEvent.FullPath)
-                    );
-
-                    Update(newConfiguration);
-
-                    ColorPrinter.WriteSucessful("Reload successful.");
+                    Update(changeEvent.FullPath);
                 }
                 catch (Exception exception)
                 {
@@ -41,12 +45,30 @@ public class Application
             };
 
         virtualLayer = new VirtualLayer(configuration);
-        Update(configuration);
+        virtualLayer.Update();
     }
 
-    private void Update(AklConfiguration configuration)
+    private void Update(string path)
     {
-        virtualLayer.Update();
+        while (true)
+        {
+            try
+            {
+                var newConfiguration = AklConfiguration.FromString(
+                    File.ReadAllText(path)
+                );
+
+                virtualLayer.Configuration = newConfiguration;
+                virtualLayer.Update();
+                ColorPrinter.WriteSucessful("Reload successful.");
+                break;
+            }
+            catch (IOException)
+            {
+                ColorPrinter.WriteError("File locked");
+                Thread.Sleep(100);
+            }
+        }
     }
 
     public void Run()
