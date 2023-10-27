@@ -22,7 +22,7 @@ public class AklConfiguration
     private AklConfiguration(TomlAklConfiguration origin)
     {
         this.origin = origin;
-        SwitchKey = new Key();
+        SwitchKey = new Key(null, null, KeyKind.Text);
     }
 
     public override string ToString()
