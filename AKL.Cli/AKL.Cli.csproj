@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\AKL.Shared\AKL.Shared.csproj" />
+    <ProjectReference Include="..\AKL.Common\AKL.Common.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

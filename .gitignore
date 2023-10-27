@@ -452,4 +452,4 @@ target/
 documentation-build
 
 # Automatically generated native library bindings
-AKL.Shared/bindings
+AKL.Common/bindings

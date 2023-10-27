@@ -1,4 +1,4 @@
-= Another Keyboard Layer
+= Another Keyboard Layer (AKL)
 :nofooter:
 :toc: preamble
 :imagesdir: assets
