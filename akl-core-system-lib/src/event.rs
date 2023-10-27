@@ -18,7 +18,7 @@ use crate::{
 /// The action that caused this event which is either the pressing or releasing
 /// of any keyboard key.
 #[derive(Debug, Clone, Copy)]
-enum Action {
+pub enum Action {
     Press,
     Release,
 }
@@ -26,7 +26,7 @@ enum Action {
 /// Platform independent abstraction over a low level keyboard event that
 /// specifies the trigger and related [`key`](crate::key::Key).
 #[derive(Debug, Clone, Copy)]
-struct Event {
+pub struct Event {
     pub action: Action,
     pub key: Key,
 }
@@ -34,7 +34,7 @@ struct Event {
 /// Platform independent abstraction over actions that are taken in response to
 /// processing an event such as blocking or replacing it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ResponseAction {
+pub enum ResponseAction {
     DoNothing,
     Block,
     ReplaceWith(KeyCombination),
@@ -52,6 +52,10 @@ pub struct EventProcessor {
 
 /// Convenience implementation for creating an event processor with the specific
 /// configuration which will fail if the `switch_key` field is none.
+/// 
+/// # Panics
+/// 
+/// Panics if the switch_key field of the configuration is none.
 impl From<Configuration> for EventProcessor {
     fn from(value: Configuration) -> Self {
         Self {
