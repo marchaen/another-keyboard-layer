@@ -1,22 +1,43 @@
 namespace AKL.Common;
 
+using System.Reflection;
+
 public class AklConfigurationProvider
 {
 
-    private FileInfo file;
-    private AklConfiguration configuration;
+    private readonly FileInfo file;
+    private readonly AklConfiguration configuration;
 
-    public static AklConfigurationProvider ReadFromFile(FileInfo file)
+    /// <summary>
+    ///     Creates a configuration provider with the parsed and loaded
+    ///     configuration which the file specifies.
+    ///     
+    ///     If the specified file doesn't exist the default configuration is
+    ///     going to be loaded instead.
+    /// </summary>
+    /// <param name="file">
+    ///     The file which should be loaded and also the location where 
+    ///     <see cref="AklConfigurationProvider.SaveToFile"/> will save the 
+    ///     serialized configuration.
+    /// </param>
+    /// <returns>
+    ///     A configuration that can be used by the <see cref="VirtualLayer"/>.
+    /// </returns>
+    /// <exception cref="AklConfigurationParsingException">
+    ///     If anything goes wrong in the deserialization or parsing step of the
+    ///     <see cref="AklConfiguration.FromString(string)"> method.
+    /// </exception>
+    public static AklConfigurationProvider LoadFromFile(FileInfo file)
     {
-        // TODO: Implement configuration parsing
-        return new AklConfigurationProvider(file, AklConfiguration.FromString(""));
-    }
+        var path = file.FullName;
 
-    public static AklConfigurationProvider WithSaveDefault(FileInfo output)
-    {
-        // TODO: Implement default configuration parsing and saving to the
-        // output file
-        return new AklConfigurationProvider(output, AklConfiguration.FromString(""));
+        if (!file.Exists)
+        {
+            path = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName ?? ".";
+            path += "/default-config.toml";
+        }
+
+        return new AklConfigurationProvider(file, AklConfiguration.FromString(File.ReadAllText(path)));
     }
 
     private AklConfigurationProvider(FileInfo file, AklConfiguration configuration)
@@ -25,14 +46,18 @@ public class AklConfigurationProvider
         this.configuration = configuration;
     }
 
-    internal AklConfiguration GetConfiguration()
+    public AklConfiguration GetConfiguration()
     {
         return this.configuration;
     }
 
+    /// <summary>
+    ///     Saves the current state of the configuration to the file which is
+    ///     set in <see cref="AklConfigurationProvider.LoadFromFile(FileInfo)"/>.
+    /// </summary>
     public void SaveToFile()
     {
-        // TODO: Implement toml to file configuration
+        File.WriteAllText(this.file.FullName, this.configuration.ToString());
     }
 
 }

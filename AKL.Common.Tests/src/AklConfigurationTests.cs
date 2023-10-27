@@ -11,7 +11,8 @@ public class AklConfigurationTests
     }
 
     [TestMethod]
-    public void TestPossibleParsingErrors() {
+    public void TestPossibleParsingErrors()
+    {
         var autoStart = "start_with_system = true\n";
         var switchKey = "switch_key = \"Control\"\n";
         var defaultCombination = "default_simulation_combination = \"LMenu\"\n";
@@ -30,7 +31,8 @@ public class AklConfigurationTests
     }
 
     [TestMethod]
-    public void TestCorrectSerialization() {
+    public void TestCorrectSerialization()
+    {
         var original = AklConfiguration.FromString(File.ReadAllText("./default-config.toml"));
         var originalHash = original.GetHashCode();
 
@@ -39,6 +41,16 @@ public class AklConfigurationTests
 
         Assert.AreEqual(original, fromSerialization);
         Assert.AreEqual(originalHash, fromSerializationHash);
+    }
+
+    [TestMethod]
+    public void TestEndToEndWithProvider()
+    {
+        var provider = AklConfigurationProvider.LoadFromFile(new FileInfo("./new-config-file.toml"));
+        provider.SaveToFile();
+
+        Assert.IsTrue(File.Exists("./new-config-file.toml"));
+        File.Delete("./new-config-file.toml");
     }
 
 }

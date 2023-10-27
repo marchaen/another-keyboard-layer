@@ -146,22 +146,20 @@ class AklConfiguration {
 }
 
 note left of AklConfiguration::TomlAklConfiguration
-Internes Model für
-die De-/Serialization
+Internes Model für die De-/Serialization
 in Toml mit Tomlyn.
 end note
 
 class VirtualLayer {
-    {field} -AklConfigurationProvider configurationProvider
-    {field} -AklConfiguration configuration
+    {field} +AklConfiguration Configuration
     {method} +Update()
 }
 
 class AklConfigurationProvider {
     {field} -FileInfo file
     {field} -AklConfiguration configuration
-    {static} {method} +AklConfigurationProvider ReadFromFile(FileInfo file)
-    {static} {method} +AklConfigurationProvider WithSaveDefault(FileInfo output)
+    {static} {method} +AklConfigurationProvider LoadFromFile(FileInfo file)
+    {method} +AklConfiguration GetConfiguration()
     {method} +void SaveToFile()
 }
 
@@ -172,10 +170,9 @@ KeyCombination o-- Key
 
 AklConfiguration o- KeyCombination
 AklConfiguration o- Key
-AklConfigurationProvider -> AklConfiguration : loads and saves
 
-AklConfiguration --* VirtualLayer
-AklConfigurationProvider <-- VirtualLayer : uses
+AklConfigurationProvider --> AklConfiguration : loads and saves
+VirtualLayer *-- AklConfiguration : needs
 
 @enduml
 ....

@@ -3,13 +3,11 @@ namespace AKL.Common;
 public class VirtualLayer
 {
 
-    private AklConfigurationProvider configurationProvider;
     public AklConfiguration Configuration { get; set; }
 
-    public VirtualLayer(AklConfigurationProvider configurationProvider)
+    public VirtualLayer(AklConfiguration configuration)
     {
-        this.configurationProvider = configurationProvider;
-        Configuration = configurationProvider.GetConfiguration();
+        Configuration = configuration;
     }
 
     public void Update()
