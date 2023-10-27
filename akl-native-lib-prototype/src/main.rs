@@ -7,8 +7,8 @@ use windows::Win32::{
     Foundation::{GetLastError, HMODULE, LPARAM, LRESULT, WPARAM},
     UI::WindowsAndMessaging::{
         CallNextHookEx, DispatchMessageW, GetMessageW, SetWindowsHookExW, TranslateMessage,
-        UnhookWindowsHookEx, HHOOK, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL,
-        WM_KEYDOWN, WM_KEYFIRST, WM_KEYLAST, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
+        UnhookWindowsHookEx, HHOOK, HOOKPROC, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL,
+        WINDOWS_HOOK_ID, WM_KEYDOWN, WM_KEYFIRST, WM_KEYLAST, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
     },
 };
 
@@ -18,7 +18,12 @@ use translation::{translate_to_character, windows_to_virtual_key};
 fn main() {
     Debugger::init();
 
-    let _keyboard_hook = KeyboardHookHandle::register();
+    let _keyboard_hook = HookHandle::register(
+        "global raw keyboard".to_owned(),
+        WH_KEYBOARD_LL,
+        Some(raw_keyboard_input_hook),
+    );
+
     run_message_queue();
 
     Debugger::destroy();
@@ -27,47 +32,57 @@ fn main() {
 // TODO: Make sure that the handle / hook is unregistered in the real
 // applications (cli und gui), following can be used to do that
 // https://learn.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-7.0&redirectedfrom=MSDN
-struct KeyboardHookHandle(HHOOK);
+struct HookHandle {
+    hook: HHOOK,
+    name: String,
+}
 
-impl KeyboardHookHandle {
-    fn register() -> Self {
-        Debugger::write("Register hook");
+impl HookHandle {
+    fn register(name: String, id: WINDOWS_HOOK_ID, listener: HOOKPROC) -> Self {
+        Debugger::write(&format!("Register {name} listener hook."));
 
         let register_result = unsafe {
             // Details and safety see:
             // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowshookexw
-            SetWindowsHookExW(WH_KEYBOARD_LL, Some(raw_keyboard_input_hook), HMODULE(0), 0)
+            SetWindowsHookExW(id, listener, HMODULE(0), 0)
         };
 
         match register_result {
             Ok(hook) => {
-                Debugger::write(&format!("Register result: {hook:?}"));
-                Self(hook)
+                Debugger::write(&format!(
+                    "Successfully registered the {} listener hook ({hook:?}).",
+                    name
+                ));
+                Self { hook, name }
             }
             Err(error) => panic!(
-                "Trying to register a global keyboard event listener failed: {} ({})",
+                "Trying to register a {} listener failed: {} ({})",
+                name,
                 error.message().to_string_lossy(),
                 error.code()
             ),
         }
     }
 
-    fn unregister_hook(&mut self) {
-        Debugger::write("Unregister hook");
+    fn unregister(&self) {
+        Debugger::write(&format!("Unregister global {} listener hook", self.name));
 
         let result = unsafe {
             // Details and safety see:
             // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-unhookwindowshookex
-            UnhookWindowsHookEx(self.0)
+            UnhookWindowsHookEx(self.hook)
         };
 
-        Debugger::write(&format!("Unregister result: {result:?}"));
+        Debugger::write(&format!(
+            "Unregister global {} listener result: {result:?}",
+            self.name
+        ));
     }
 }
 
-impl Drop for KeyboardHookHandle {
+impl Drop for HookHandle {
     fn drop(&mut self) {
-        self.unregister_hook();
+        self.unregister()
     }
 }
 
