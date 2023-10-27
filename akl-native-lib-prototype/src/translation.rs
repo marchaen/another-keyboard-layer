@@ -1,5 +1,5 @@
 use windows::Win32::UI::{
-    Input::KeyboardAndMouse::{GetKeyboardLayout, GetKeyboardState, ToUnicodeEx},
+    Input::KeyboardAndMouse::{GetKeyboardLayout, GetKeyboardState, ToUnicodeEx, VIRTUAL_KEY},
     WindowsAndMessaging::KBDLLHOOKSTRUCT,
 };
 
@@ -48,14 +48,38 @@ pub fn translate_to_character(event: &KBDLLHOOKSTRUCT) -> Option<char> {
     char::decode_utf16(raw_character[..char_count].iter().copied()).find_map(Result::ok)
 }
 
+pub fn windows_to_virtual_key(windows_key: u16) -> Option<VirtualKey> {
+    VIRTUAL_KEY(windows_key).try_into().ok()
+}
+
+// TODO: Add this impl block to the current implementation of the library
+impl VirtualKey {
+    #[cfg(target_os = "windows")]
+    pub fn to_windows_key(self) -> u16 {
+        Into::<windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY>::into(self).0
+    }
+}
+
 macro_rules! windows_virtual_key_code_to_virtual_key_translations {
     ($($name: ident = $translation: expr),*,) => {
-            pub fn windows_to_virtual_key(windows_key: u16) -> Option<VirtualKey> {
-                match windows_key {
-                    $($translation => Some(VirtualKey::$name),)*
-                    _ => None,
+        impl TryFrom<VIRTUAL_KEY> for VirtualKey {
+            type Error = ();
+
+            fn try_from(windows_key: VIRTUAL_KEY) -> Result<Self, Self::Error> {
+                match windows_key.0 {
+                    $($translation => Ok(VirtualKey::$name),)*
+                    _ => Err(()),
                 }
             }
+        }
+
+        impl From<VirtualKey> for VIRTUAL_KEY {
+            fn from(virtual_key: VirtualKey) -> Self {
+                match virtual_key {
+                    $(VirtualKey::$name => VIRTUAL_KEY($translation),)*
+                }
+            }
+        }
     };
 }
 
