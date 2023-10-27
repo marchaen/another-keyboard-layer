@@ -5,6 +5,15 @@ public class KeyTests
 {
 
     [TestMethod]
+    public void KeyCombinationToString()
+    {
+        Assert.AreEqual("Shift+a", new KeyCombination(new Key[] {
+            new Key(VirtualKeyCode.Shift, null, KeyKind.Virtual),
+            new Key(null, 'a', KeyKind.Text)
+        }).ToString());
+    }
+
+    [TestMethod]
     public void ParseVirtualKeyCodeFromString()
     {
         Assert.AreEqual(VirtualKeyCode.Back, VirtualKeyCodeParser.Parse("Back"));

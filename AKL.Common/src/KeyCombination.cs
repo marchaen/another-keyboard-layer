@@ -51,6 +51,11 @@ public class KeyCombination
         return new KeyCombination(keys.ToArray());
     }
 
+    public override string ToString()
+    {
+        return String.Join(KEY_SEPARATOR, keys.AsEnumerable());
+    }
+
     public override bool Equals(object? obj)
     {
         if (obj == null || GetType() != obj.GetType()) return false;

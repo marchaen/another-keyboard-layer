@@ -6,6 +6,7 @@ public class Key
     private VirtualKeyCode? virtualKey;
     private char? textKey;
     private KeyKind kind;
+
     public Key(VirtualKeyCode? virtualKey, char? textKey, KeyKind kind)
     {
         this.virtualKey = virtualKey;
@@ -56,6 +57,15 @@ public class Key
         {
             return new Key(virtualKey, null, KeyKind.Virtual);
         }
+    }
+
+    public override string ToString()
+    {
+        return kind switch
+        {
+            KeyKind.Virtual => this.virtualKey.ToString() ?? "This method can't fail.",
+            _ => this.textKey.ToString() ?? "This method can't fail.",
+        };
     }
 
     public override bool Equals(object? obj)
