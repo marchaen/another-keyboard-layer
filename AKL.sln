@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AKL.Common", "AKL.Common\AK
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AKL.Cli", "AKL.Cli\AKL.Cli.csproj", "{ED077EE6-7656-4273-BD72-2D41BDD0BFC2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AKL.Common.Tests", "AKL.Common.Tests\AKL.Common.Tests.csproj", "{7E4FCA20-15B6-41C7-8239-B071E94533A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{ED077EE6-7656-4273-BD72-2D41BDD0BFC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED077EE6-7656-4273-BD72-2D41BDD0BFC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED077EE6-7656-4273-BD72-2D41BDD0BFC2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E4FCA20-15B6-41C7-8239-B071E94533A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E4FCA20-15B6-41C7-8239-B071E94533A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E4FCA20-15B6-41C7-8239-B071E94533A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E4FCA20-15B6-41C7-8239-B071E94533A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
