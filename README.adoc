@@ -51,10 +51,23 @@ komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit
 einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden, während
 diese gehalten wird. Siehe <<_features>> für mehr Details.
 
-NOTE: Diese Funktionalität gibt es sehr ähnlich bereits in Linux. Siehe deshalb
-https://wiki.archlinux.org/title/X_keyboard_extension#Caps_hjkl_as_vimlike_arrow_keys[Caps + hjkl as arrow keys]
+ifdef::env-gitlab[]
+:git-host: GitLab
+endif::env-gitlab[]
 
-IMPORTANT: Durchgestrichene Features werden nicht mehr implementiert 
+ifdef::env-github[]
+:git-host: GitHub
+endif::env-github[]
+
+ifdef::git-host[]
+NOTE: Leider funktioniert die Anzeige von AsciiDoc-Dokumenten in **{git-host}**
+nicht wirklich gut, deshalb sollte die Dokumentation besser lokal angesehen
+werden. Siehe die Build Anweisungen für `Generelle Dokumentation`.
+endif::git-host[]
+
+IMPORTANT: Diese Funktionalität gibt es sehr ähnlich bereits in Linux. Siehe
+https://wiki.archlinux.org/title/X_keyboard_extension#Caps_hjkl_as_vimlike_arrow_keys[Caps + hjkl as arrow keys].
+Deshalb werden durchgestrichene Features nicht mehr implementiert
 beziehungsweise weiter entwickelt werden.
 
 == Features
