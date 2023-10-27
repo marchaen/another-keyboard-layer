@@ -26,9 +26,9 @@
   
   <Target Name="BuildNativeLibrary" BeforeTargets="PrepareForBuild">
     <!-- Crosscompile native lib for windows and linux -->
-    <Exec Command="cross build --release --target x86_64-pc-windows-gnu"
+    <Exec Command="cross build --release --target x86_64-pc-windows-gnu --target-dir build-win"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
-    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu"
+    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu --target-dir build-linux"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
 
     <!-- Copy generated bindings from the native lib -->
@@ -37,12 +37,12 @@
 
     <!-- Include native dynamic librarys as output files -->
     <ItemGroup>
-      <Content Include="../akl-core-system-lib/target/x86_64-pc-windows-gnu/release/*.dll">
+      <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/release/*.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
-      <Content Include="../akl-core-system-lib/target/x86_64-unknown-linux-gnu/release/*.so">
+      <Content Include="../akl-core-system-lib/build-linux/x86_64-unknown-linux-gnu/release/*.so">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+rm -rf ./akl-core-system-lib/build-win
+rm -rf ./akl-core-system-lib/build-linux
 rm -rf ./akl-core-system-lib/target
 rm -rf ./akl-native-lib-prototype/target
 
