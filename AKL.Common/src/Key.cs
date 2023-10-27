@@ -27,8 +27,6 @@ public class Key
     ///     The name of a virtual key or a single character to represent a text
     ///     key. So any single character input will be treated as a text key.
     /// </param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// </exception>
     /// <exception cref="ArgumentException">
     ///     If no virtual key code with the specified name could be found or if 
     ///     the raw input contains any whitespace as defined
