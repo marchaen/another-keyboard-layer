@@ -143,6 +143,7 @@ end note
 KeyCombination o-- Key
 
 class VirtualLayer {
+    {field} -AklConfiguration configuration
     {field} +bool Autostart
     {field} +Key SwitchKey
     {field} +KeyCombination? DefaultCombination
@@ -156,10 +157,11 @@ VirtualLayer o- Key
 class AklConfiguration {
     {field} -FileInfo file
     {field} -Toml configuration
+    {field} -VirtualLayer? layer
     {static} {method} +AklConfiguration ReadFromFile(FileInfo file)
     {static} {method} +AklConfiguration WithSaveDefault(FileInfo output)
     {method} +VirtualLayer TryParse()
-    {method} +bool SaveToFile()
+    {method} +void SaveToFile()
 }
 
 VirtualLayer -- AklConfiguration
