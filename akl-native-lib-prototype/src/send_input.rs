@@ -1,12 +1,12 @@
 use std::mem::size_of;
 
 use windows::Win32::UI::{
-        Input::KeyboardAndMouse::{
-            SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS,
-            KEYEVENTF_KEYUP, KEYEVENTF_UNICODE, VIRTUAL_KEY,
-        },
-        WindowsAndMessaging::GetMessageExtraInfo,
-    };
+    Input::KeyboardAndMouse::{
+        SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP,
+        KEYEVENTF_UNICODE, VIRTUAL_KEY,
+    },
+    WindowsAndMessaging::GetMessageExtraInfo,
+};
 
 use crate::{
     debugger::Debugger,
@@ -14,10 +14,6 @@ use crate::{
     translation::VirtualKey,
 };
 
-// TODO: This method assumes that the key combination will not contain another
-// valid key after a none in its slice representation. This is currently not
-// enforced nor checked anywhere which has to be changed when implementing the
-// real library.
 pub fn send_key_combination(key_combination: KeyCombination) {
     let keys: [Option<Key>; 4] = key_combination.into();
     let mut send_keys = 0;

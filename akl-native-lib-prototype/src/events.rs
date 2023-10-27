@@ -23,13 +23,15 @@ impl From<VirtualKey> for Key {
 
 impl From<&'static str> for Key {
     fn from(value: &'static str) -> Self {
-        if let Ok(virtual_key) = value.try_into() {
-            Self::Virtual(virtual_key)
-        } else {
-            Self::Text(value.chars().next().expect(
-                "Should always be able to create a virtual or char / text key from static strings.",
-            ))
-        }
+        value.try_into().map_or_else(
+            |_| Self::Text(
+                value
+                .chars()
+                .next()
+                .expect("Should always be able to create a virtual or char / text key from static strings.",)
+            ),
+                Self::Virtual
+            )
     }
 }
 
@@ -41,11 +43,8 @@ macro_rules! key_combination {
     };
 }
 
-// TODO: Custom equality operations for allowing that the keys are pressed in
-// any order and not just the one which was specified in the configuration.
-//
-// Example: "Shift+j" => The user could press j first and then shift and the
-// key combination wouldn't be recognized
+/// Representation for a single key combination. It has to be guaranteed that
+/// no `Some(Key)` can come after a `None` in the tuple struct.
 #[derive(Debug, Clone, Copy, PartialOrd, Ord)]
 pub struct KeyCombination(Key, Option<Key>, Option<Key>, Option<Key>);
 
@@ -73,11 +72,23 @@ impl KeyCombination {
 impl From<&KeyCombination> for [Option<Key>; 4] {
     fn from(value: &KeyCombination) -> Self {
         let mut keys = [None; 4];
+        let mut current_index = 1;
 
         keys[0] = Some(value.0);
-        keys[1] = value.1;
-        keys[2] = value.2;
-        keys[3] = value.3;
+
+        if value.1.is_some() {
+            keys[current_index] = value.1;
+            current_index += 1;
+        }
+
+        if value.2.is_some() {
+            keys[current_index] = value.2;
+            current_index += 1;
+        }
+
+        if value.3.is_some() {
+            keys[current_index] = value.3;
+        }
 
         keys
     }
@@ -127,12 +138,29 @@ impl TryFrom<&[Key]> for KeyCombination {
             return Err(());
         }
 
-        Ok(Self(
-            raw_keys[0],
-            raw_keys.get(1).copied(),
-            raw_keys.get(2).copied(),
-            raw_keys.get(3).copied(),
-        ))
+        // Make sure to stop reading from key after finding a single non key
+        // option so that the assumption that there can't be any `Some` values
+        // after a `None` holds true.
+
+        let second = raw_keys.get(1).copied();
+
+        if second.is_none() {
+            return Ok(Self(raw_keys[0], None, None, None));
+        }
+
+        let third = raw_keys.get(2).copied();
+
+        if third.is_none() {
+            return Ok(Self(raw_keys[0], second, None, None));
+        }
+
+        let fourth = raw_keys.get(2).copied();
+
+        if fourth.is_none() {
+            return Ok(Self(raw_keys[0], second, third, None));
+        }
+
+        Ok(Self(raw_keys[0], second, third, fourth))
     }
 }
 
