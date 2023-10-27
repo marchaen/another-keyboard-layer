@@ -220,17 +220,17 @@ core --> keyboard : interacts with
 
 == Build Anweisungen
 
-Das Gui und die Cli können mit `dotnet publish -c Debug` für die eigene Platform
-gebaut werden. Wenn die `Release`-Konfiguration verwendet wird (`dotnet publish 
--c Release`) wird auch für die jeweils andere Platform gebaut werden, allerdings
-ist dieser Prozess nicht sehr stabil und kann auf Grund von vielen Variablen
-fehlschlagen.
+Das Gui und die Cli können mit `dotnet publish -c Release` für die eigene 
+Platform gebaut werden. Wenn man die Option `--os **<OS>**` am Ende hinzufügt,
+kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
+`linux`).
 
 .Anforderungen
 - https://dotnet.microsoft.com/en-us/download/dotnet/7.0[.NET 7.0 SDK]
 - https://www.rust-lang.org/tools/install[Rustlang]
-- **[Optional]** `rust-toolchain`-Targets `x86_64-pc-windows-gnu` und
-`x86_64-unknown-linux-gnu` für crossplatform release builds
+- `rust-toolchain`-Targets `x86_64-pc-windows-gnu` und
+`x86_64-unknown-linux-gnu` (wird auch benötigt wenn nur für die eigene Platform
+gebaut wird)
 
 == Konfigurationsdatei
 
