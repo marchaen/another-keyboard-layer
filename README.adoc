@@ -33,6 +33,13 @@ and the rouge syntax highlighter and python3 is required:
 - https://docs.asciidoctor.org/pdf-converter/latest/install/#install-asciidoctor-pdf
 - https://docs.asciidoctor.org/diagram-extension/latest/#installation
 - https://docs.asciidoctor.org/asciidoctor/latest/syntax-highlighting/rouge/
+
+Alternatively run the following command if you want to use the AsciiDoctor
+Docker Image (https://github.com/asciidoctor/docker-asciidoctor) instead of
+installing asciidoctor locally.
+
+    ./build-documentation.py with-docker
+
 ////
 
 Programm das einen weiteren Tastaturlayer emuliert.
@@ -525,6 +532,14 @@ Platform gebaut werden. Wenn man die Option `--os **<OS>**` am Ende hinzufügt,
 kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
 `linux`), allerdings wird empfohlen das **<OS>** immer anzugeben.
 
+.Windows
+[source, console]
+$ dotnet publish -c Release --os win
+
+.Linux
+[source, console]
+$ dotnet publish -c Release --os linux
+
 .Anforderungen
 - https://dotnet.microsoft.com/en-us/download/dotnet/7.0[.NET 7.0 SDK]
 - https://www.rust-lang.org/tools/install[Rustlang]
@@ -532,20 +547,34 @@ kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
 
 === Dokumentation
 
-Das Ausführen vom folgenden Skript generiert HTML-Dokumente aus roh Text von 
-Source Code und den AsciiDocs (README, Manpage).
+Je nach Präferenz kann Dokumentation lokal oder auch mit
+https://www.docker.com/[Docker] generiert werden. Die folgenden Befehle
+generieren dieses Dokument im HTML und PDF format, außerdem wird die Manpage für
+das <<_textbasierte_benutzerschnittstelle_akl_cli, Command-line Interface>>
+erstellt.
 
-  ./build-documentation.py
+.Lokal
+[source, console]
+$ ./build-documentation.py
 
-.Anforderungen
+.Mit Docker
+[source, console]
+$ ./build-documentation.py with-docker
+
+==== Anforderungen
+
+Generell::
 - https://www.python.org/downloads/[Python3 (Build Script)]
-- https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/[AsciiDoc Converter]
-- https://www.rust-lang.org/tools/install[Rustlang (Dokumentation von akl-core-system-lib)]
 
-.Benötigte AsciiDoctor Extensions
-- https://docs.asciidoctor.org/pdf-converter/latest/install/#install-asciidoctor-pdf[Pdf Converter]
-- https://docs.asciidoctor.org/diagram-extension/latest/#installation[PlantUml Diagram Renderer]
-- https://docs.asciidoctor.org/asciidoctor/latest/syntax-highlighting/rouge/[SourceCode Highlighter]
+Lokal::
+- https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/[AsciiDoc Converter]
+- https://docs.asciidoctor.org/pdf-converter/latest/install/#install-asciidoctor-pdf[Pdf Converter Extension]
+- https://docs.asciidoctor.org/diagram-extension/latest/#installation[PlantUml Diagram Renderer Extension]
+- https://docs.asciidoctor.org/asciidoctor/latest/syntax-highlighting/rouge/[SourceCode Highlighter Extension]
+
+Docker::
+- https://docs.docker.com/desktop/install/windows-install/[Docker (Windows)]
+- https://github.com/docker/docker-install[Docker (Linux)]
 
 == Konfigurationsdatei
 
