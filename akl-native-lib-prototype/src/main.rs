@@ -10,9 +10,9 @@ use windows::Win32::{
     Foundation::{GetLastError, BOOL, HMODULE, LPARAM, LRESULT, WPARAM},
     System::Console::{SetConsoleCtrlHandler, CTRL_BREAK_EVENT, CTRL_CLOSE_EVENT, CTRL_C_EVENT},
     UI::WindowsAndMessaging::{
-        CallNextHookEx, DispatchMessageW, GetMessageW, SetWindowsHookExW, TranslateMessage,
-        UnhookWindowsHookEx, HHOOK, HOOKPROC, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL,
-        WINDOWS_HOOK_ID, WM_KEYDOWN, WM_KEYFIRST, WM_KEYLAST, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
+        CallNextHookEx, DispatchMessageW, GetMessageW, SetWindowsHookExW, UnhookWindowsHookEx,
+        HHOOK, HOOKPROC, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL, WINDOWS_HOOK_ID, WM_KEYDOWN,
+        WM_KEYFIRST, WM_KEYLAST, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
     },
 };
 
@@ -32,7 +32,10 @@ fn main() {
 
     // Some mor testing
     mappings.insert(key_combination!("t"), key_combination!("😊"));
-    mappings.insert(key_combination!("LShift" + "t"), key_combination!("A" + "B" + "C"));
+    mappings.insert(
+        key_combination!("LShift" + "t"),
+        key_combination!("A" + "B" + "C"),
+    );
     mappings.insert(key_combination!("LAlt" + "t"), key_combination!("."));
     mappings.insert(key_combination!("LMeta" + "t"), key_combination!("^" + "a"));
 
@@ -253,11 +256,6 @@ fn run_message_queue() {
                 Debugger::write(&format!("Error retrieving message: {error_message}"));
             }
             _ => {
-                Debugger::write("Translate message");
-                // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
-                // Returns if the message was translated (WM_CHAR event) or not.
-                unsafe { TranslateMessage(ptr::addr_of!(message)) };
-
                 Debugger::write("Dispatching message");
                 // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessage
                 // Note: The return value should be ignored.
