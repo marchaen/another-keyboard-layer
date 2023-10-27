@@ -47,6 +47,7 @@ public unsafe class VirtualLayer
 
         Stop();
 
+        SetStartup(Configuration.Autostart);
         AklCoreNativeInterface.set_switch_key(akl, Configuration.SwitchKey.ToFfi());
 
         if (Configuration.DefaultCombination != null)
@@ -83,9 +84,7 @@ public unsafe class VirtualLayer
             var error = AklCoreNativeInterface.stop(akl);
 
             if (error.has_error)
-            {
                 AklCoreNativeInterface.destroy_error_message(error.error_message);
-            }
         }
     }
 
@@ -99,6 +98,31 @@ public unsafe class VirtualLayer
             AklCoreNativeInterface.destroy(akl);
             akl = null;
         }
+    }
+
+    // See https://stackoverflow.com/a/675347
+    private void SetStartup(bool enabled)
+    {
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        Microsoft.Win32.RegistryKey? autostart;
+
+        autostart = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+            "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true
+        );
+
+        if (autostart == null) {
+            throw new Exception("Couldn't open autostart registry key.");
+        }
+
+        if (enabled)
+            autostart.SetValue(
+                "another-keyboard-layer",
+                $"\"{AppDomain.CurrentDomain.BaseDirectory}{AppDomain.CurrentDomain.FriendlyName}.exe\""
+            );
+        else
+            autostart.DeleteValue("another-keyboard-layer", false);
     }
 
 }

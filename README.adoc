@@ -116,6 +116,7 @@ zu nennen, stattdessen wird die Fertigstellung der Komponenten betrachtet.
 - [x] AKL.Cli Implementation
 - [ ] [.line-through]#Linux Prototyp (Ohne Root Zugriff und ohne `plugdev`-Gruppe)#
 - [ ] [.line-through]#akl-core-system-lib Linux Implementation#
+- [x] Starten mit dem System unter Windows
 - [ ] AKL.Gui
 
 NOTE: Die Implementationen wurden mit der Hilfe von Prototypen entwickelt, damit
