@@ -1,0 +1,16 @@
+[package]
+name = "akl-native-lib-prototype"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "debug-server"
+path = "src/debug-server.rs"
+
+[dependencies]
+windows = { version = "0.48.0", features = [
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_Foundation",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_TextServices",
+] }
