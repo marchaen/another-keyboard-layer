@@ -1,5 +1,7 @@
 namespace AKL.Common;
 
+using AKL.Core;
+
 public class KeyCombination
 {
 
@@ -93,6 +95,50 @@ public class KeyCombination
 
             return hashcode;
         }
+    }
+
+    internal FfiKeyCombination ToFfi() {
+        var first = this.keys.Length >= 1 ? this.keys[0] : null;
+        var second = this.keys.Length >= 2 ? this.keys[1] : null;
+        var third = this.keys.Length >= 3 ? this.keys[2] : null;
+        var fourth = this.keys.Length >= 4 ? this.keys[3] : null;
+
+        var firstFfiKey = new FfiKey();
+
+        if (first != null)
+            firstFfiKey = first.ToFfi();
+        else
+            firstFfiKey.kind = FfiKeyKind.None;
+
+        var secondFfiKey = new FfiKey();
+
+        if (second != null)
+            secondFfiKey = second.ToFfi();
+        else
+            secondFfiKey.kind = FfiKeyKind.None;
+
+        var thirdFfiKey = new FfiKey();
+
+        if (third != null)
+            thirdFfiKey = third.ToFfi();
+        else
+            thirdFfiKey.kind = FfiKeyKind.None;
+
+        var fourthFfiKey = new FfiKey();
+
+        if (fourth != null)
+            fourthFfiKey = fourth.ToFfi();
+        else
+            fourthFfiKey.kind = FfiKeyKind.None;
+
+        var combination = new FfiKeyCombination();
+
+        combination.Item1 = firstFfiKey;
+        combination.Item2 = secondFfiKey;
+        combination.Item3 = thirdFfiKey;
+        combination.Item4 = fourthFfiKey;
+
+        return combination;
     }
 
 }

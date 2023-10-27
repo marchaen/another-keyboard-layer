@@ -27,7 +27,7 @@ impl AnotherKeyboardLayer {
         matches!(self.switch_key, None)
     }
 
-    fn is_running(&self) -> bool {
+    pub fn is_running(&self) -> bool {
         matches!(self.worker, Some(_))
     }
 

@@ -1,5 +1,7 @@
 namespace AKL.Common;
 
+using AKL.Core;
+
 public class Key
 {
 
@@ -95,6 +97,23 @@ public class Key
 
             return hashcode * 7302013 ^ (int) this.kind;
         }
+    }
+    
+    internal FfiKey ToFfi() {
+        var ffi = new FfiKey();
+
+        switch (this.kind) {
+            case KeyKind.Text:
+                ffi.kind = FfiKeyKind.Text;
+                ffi.text = Convert.ToUInt32(this.textKey);
+                break;
+            case KeyKind.Virtual:
+                ffi.kind = FfiKeyKind.Virtual;
+                ffi.named = (byte) (this.virtualKey ?? 0);
+                break;
+        }
+
+        return ffi;
     }
 
 }
