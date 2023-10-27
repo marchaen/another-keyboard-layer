@@ -372,8 +372,11 @@ kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
 Folgende Befehle generieren HTML-Dokumente aus roh Text von Source Code und
 den AsciiDocs.
 
-Readme mit Diagrammen:: `./build-documentation.sh`
+Readme mit Diagrammen:: `./build-documentation.py`
 akl-core-system-lib Dokumentation:: `cargo doc --no-deps --document-private-items`
+
+.Anforderungen
+- https://www.python.org/downloads/[Python3]
 
 == Konfigurationsdatei
 
