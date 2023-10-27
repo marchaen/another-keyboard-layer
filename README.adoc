@@ -102,8 +102,9 @@ da es dort zu viele verschiedene Möglichkeiten gibt und die Entscheidung darüb
 den Benutzer überlassen werden sollte.
 
 Livereload der Konfiguration:: Es gibt die Möglichkeit den virtuellen Layer
-automatisch neuzustarten sobald manuelle Änderungen an der Konfigurationsdatei 
-vorgenommen worden sind. Siehe Cli Optionen: <<_verfügbare_optionen_englisch>>
+automatisch neu zu starten, sobald manuelle Änderungen an der 
+Konfigurationsdatei vorgenommen worden sind. Siehe Cli Optionen:
+<<_verfügbare_optionen_englisch>>
 
 === Fortschritt
 
