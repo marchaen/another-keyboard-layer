@@ -91,7 +91,7 @@ verarbeitet werden.
 
 === Überblick über die Beziehungen der Komponenten
 
-[plantuml, target="components-overview", fromat=svg]
+[plantuml, target="components-overview", format=svg]
 ....
 @startuml
 !theme reddress-darkblue
