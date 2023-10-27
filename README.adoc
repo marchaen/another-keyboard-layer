@@ -125,9 +125,6 @@ class Key {
     {static} {method} +Key TryParse(string raw)
 }
 
-Key *-- VirtualKeyCode
-Key *-- KeyKind
-
 class KeyCombination {
     {field} -Key[] keys;
     {static} {method} +KeyCombination TryParse(string raw)
@@ -140,27 +137,6 @@ es keinen ergonomischen Weg dies in
 C# Klassen darzustellen.
 end note
 
-KeyCombination o-- Key
-
-class VirtualLayer {
-    {field} -AklConfigurationProvider configurationProvider
-    {field} -AklConfiguration configuration
-    {method} +Update()
-}
-
-VirtualLayer o- KeyCombination
-VirtualLayer o- Key
-
-class AklConfigurationProvider {
-    {field} -FileInfo file
-    {field} -AklConfiguration configuration
-    {static} {method} +AklConfigurationProvider ReadFromFile(FileInfo file)
-    {static} {method} +AklConfigurationProvider WithSaveDefault(FileInfo output)
-    {method} +void SaveToFile()
-}
-
-AklConfigurationProvider - VirtualLayer
-
 class AklConfiguration {
     {field} -TomlAklConfiguration origin;
     {field} +bool Autostart
@@ -170,10 +146,36 @@ class AklConfiguration {
 }
 
 note left of AklConfiguration::TomlAklConfiguration
-Internes Model für die De-/Serialization in Toml mit Tomlyn.
+Internes Model für
+die De-/Serialization
+in Toml mit Tomlyn.
 end note
 
-AklConfigurationProvider -- AklConfiguration
+class VirtualLayer {
+    {field} -AklConfigurationProvider configurationProvider
+    {field} -AklConfiguration configuration
+    {method} +Update()
+}
+
+class AklConfigurationProvider {
+    {field} -FileInfo file
+    {field} -AklConfiguration configuration
+    {static} {method} +AklConfigurationProvider ReadFromFile(FileInfo file)
+    {static} {method} +AklConfigurationProvider WithSaveDefault(FileInfo output)
+    {method} +void SaveToFile()
+}
+
+Key *-- VirtualKeyCode
+Key *-- KeyKind
+
+KeyCombination o-- Key
+
+AklConfiguration o- KeyCombination
+AklConfiguration o- Key
+AklConfigurationProvider -> AklConfiguration : loads and saves
+
+AklConfiguration --* VirtualLayer
+AklConfigurationProvider <-- VirtualLayer : uses
 
 @enduml
 ....
