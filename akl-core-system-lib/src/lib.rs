@@ -61,6 +61,8 @@ impl AnotherKeyboardLayer {
             return Err(AklError::AlreadyStopped);
         }
 
+        // Handle can't be none when self.is_running returns true because the
+        // implementation is just checking that handle is Some(_).
         let mut handle = self.handle.take().unwrap();
         handle.unregister();
 

@@ -239,7 +239,8 @@ pub extern "C" fn set_default_combination(
     key_combination: FfiKeyCombination,
 ) {
     let akl = akl_from_raw(raw_context);
-    let parsed_combination: Result<KeyCombination, _> = key_combination.try_into();
+    let parsed_combination: Result<KeyCombination, _> =
+        key_combination.try_into();
 
     if let Ok(combination) = parsed_combination {
         akl.configuration.default_combination = Some(combination);
@@ -260,13 +261,15 @@ pub extern "C" fn add_mapping(
         let target = target.try_into();
 
         if target.is_err() {
-            return FfiResult::error("message");
+            return FfiResult::error("The target key combination is invalid.");
         }
 
         let replacement = replacement.try_into();
 
         if replacement.is_err() {
-            return FfiResult::error("message");
+            return FfiResult::error(
+                "The replacement key combination is invalid.",
+            );
         }
 
         (target.unwrap(), replacement.unwrap())
