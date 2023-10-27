@@ -44,7 +44,7 @@ diese gehalten wird. Siehe <<_features>> für mehr Details.
 
 == Features
 
-Auflistung und Erklärung aller Features.
+Erklärung aller Features und generelle Fortschrittsübersicht.
 
 Konfigurierbare Layer-Umschalttaste:: Die Taste welche gehalten wird, um auf den
 virtuellen Layer zu schalten ist frei wählbar.
@@ -93,6 +93,23 @@ den Benutzer überlassen werden sollte.
 Livereload der Konfiguration:: Es gibt die Möglichkeit den virtuellen Layer
 automatisch neuzustarten sobald manuelle Änderungen an der Konfigurationsdatei 
 vorgenommen worden sind. Siehe Cli Optionen: <<_verfügbare_optionen_englisch>>
+
+=== Fortschritt
+
+Allgemeiner Fortschritt des Projekts ohne die genauen Features direkt
+zu nennen, stattdessen wird die Fertigstellung der Komponenten betrachtet.
+
+- [x] AKL.Common Abstraktion
+- [x] Windows Prototyp
+- [x] akl-core-system-lib Windows Implementation
+- [x] AKL.Cli Implementation
+- [ ] Linux Prototyp (Ohne Root Zugriff und ohne `plugdev`-Gruppe)
+- [ ] akl-core-system-lib Linux Implementation
+- [ ] AKL.Gui
+
+NOTE: Die Implementationen wurden mit der Hilfe von Prototypen entwickelt, damit
+die benötigten Funktionen (Tastaturevents blockieren und Tastenanschläge
+simulieren) einzeln herausgefunden werden können.
 
 == Komponenten
 
@@ -516,17 +533,19 @@ kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
 === Dokumentation
 
 Das Ausführen vom folgenden Skript generiert HTML-Dokumente aus roh Text von 
-Source Code und den AsciiDocs.
+Source Code und den AsciiDocs (README, Manpage).
 
   ./build-documentation.py
 
 .Anforderungen
-- https://www.python.org/downloads/[Python3]
+- https://www.python.org/downloads/[Python3 (Build Script)]
 - https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/[AsciiDoc Converter]
-- https://www.rust-lang.org/tools/install[Rustlang (Generierung von akl-core-system-lib Dokumentation)]
+- https://www.rust-lang.org/tools/install[Rustlang (Dokumentation von akl-core-system-lib)]
 
-NOTE: Die genauen Installationsanweisungen von AsciiDocs können in der
-Rohansicht von diesem Dokument ganz oben gefunden werden.
+.Benötigte AsciiDoctor Extensions
+- https://docs.asciidoctor.org/pdf-converter/latest/install/#install-asciidoctor-pdf[Pdf Converter]
+- https://docs.asciidoctor.org/diagram-extension/latest/#installation[PlantUml Diagram Renderer]
+- https://docs.asciidoctor.org/asciidoctor/latest/syntax-highlighting/rouge/[SourceCode Highlighter]
 
 == Konfigurationsdatei
 
