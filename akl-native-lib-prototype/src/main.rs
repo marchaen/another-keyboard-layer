@@ -14,7 +14,7 @@ use windows::Win32::{
 };
 
 use debugger::Debugger;
-use translation::{translate_to_character, windows_to_virtual_key};
+use translation::{translate_to_character, windows_to_virtual_key, VirtualKey};
 
 fn main() {
     Debugger::init();
@@ -120,6 +120,8 @@ impl Drop for HookHandle {
     }
 }
 
+static mut BLOCKED: bool = false;
+
 // See https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc
 unsafe extern "system" fn raw_keyboard_input_hook(
     code: i32,
@@ -154,17 +156,51 @@ unsafe extern "system" fn raw_keyboard_input_hook(
         },
     );
 
+    let virtual_key = windows_to_virtual_key(event.vkCode as u16);
+
     match wparam.0 as u32 {
-        WM_KEYDOWN => Debugger::write(&format!("{formatted_event} Down")),
-        WM_KEYUP => Debugger::write(&format!("{formatted_event} Up")),
+        WM_KEYDOWN => { 
+            Debugger::write(&format!("{formatted_event} Down"));
+
+            if let Some(virtual_key) = virtual_key {
+                if virtual_key == VirtualKey::CapsLock {
+                    Debugger::write("Start blocking...");
+                    BLOCKED = true;
+                    return LRESULT(1);
+                }
+            }
+        },
+        WM_KEYUP => {
+            Debugger::write(&format!("{formatted_event} Up"));
+
+            if let Some(virtual_key) = virtual_key {
+                if virtual_key == VirtualKey::CapsLock {
+                    Debugger::write("Stopped blocking.");
+                    BLOCKED = false;
+                    return LRESULT(1);
+                }
+            }
+        },
         WM_SYSKEYDOWN => Debugger::write(&format!("{formatted_event} SysDown")),
         WM_SYSKEYUP => Debugger::write(&format!("{formatted_event} SysUp")),
         _ => (),
     }
 
+    if BLOCKED {
+        return LRESULT(1);
+    }
+
     CallNextHookEx(HHOOK(0), code, wparam, lparam)
 }
 
+// A low level keyboard hook needs a message queue to be running in the case of
+// this application that means the GetMessage-Function will block indefinitely.
+//
+// That also means we could make rewrite the loop to stop after receiving one
+// message so that there is a way to terminate the message queue from another
+// thread is needed in the actual akl-core-system-lib.
+//
+// See https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc#remarks
 fn run_message_queue() {
     let mut message = MSG::default();
 
