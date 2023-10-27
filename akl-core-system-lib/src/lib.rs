@@ -17,7 +17,7 @@
 //! coupled and have to be modified together whenever one of them changes.
 //! Unfortunately this is also the case for the [`virtual key`](crate::key::VirtualKey).
 #![warn(clippy::pedantic)]
-#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::module_name_repetitions, rustdoc::private_intra_doc_links)]
 
 mod event;
 mod ffi;

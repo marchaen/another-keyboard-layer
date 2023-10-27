@@ -13,10 +13,9 @@ use crate::{
 };
 
 /// Pointer type for methods that require an instance of
-/// [`AnotherKeyboardLayer`](crate::AnotherKeyboardLayer) to make sure no data
-/// can be corrupted from the c# site easily. Creating a pointer type isn't
-/// required for ffi but makes the api a bit nicer because there aren't any
-/// `*void` used.
+/// [`AnotherKeyboardLayer`] to make sure no data can be corrupted from the c#
+/// site easily. Creating a pointer type isn't required for ffi but makes the
+/// api a bit nicer because there aren't any `*void` used.
 #[repr(C)]
 pub struct AklContext;
 
@@ -56,7 +55,7 @@ pub enum FfiKeyKind {
     /// A single character such as 'a', 'ü' or 'è'
     Text,
     /// Any key that doesn't produce text when pressed.
-    /// See also [VirtualKey](crate::key::VirtualKey) in the implementation.
+    /// See also [VirtualKey] in the implementation.
     Virtual,
     /// No key at all, unfortunately ffi doesn't allow us to represent a key
     /// combination with `Option`-types so this is the easiest solution for
