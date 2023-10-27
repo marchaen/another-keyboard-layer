@@ -7,6 +7,7 @@ endif::[]
 // Translations
 :toc-title: Inhaltsverzeichnis
 :note-caption: Anmerkung
+:important-caption: Wichtig
 // Table of Contents
 :toc: preamble
 :toclevels: 3
@@ -48,6 +49,9 @@ Auf diesen virtuellen Layer können schwer zu erreichende Tasten oder
 komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit
 einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden, während
 diese gehalten wird. Siehe <<_features>> für mehr Details.
+
+IMPORTANT: Durchgestrichene Features werden nicht mehr implementiert 
+beziehungsweise weiter entwickelt werden.
 
 == Features
 
@@ -110,8 +114,8 @@ zu nennen, stattdessen wird die Fertigstellung der Komponenten betrachtet.
 - [x] Windows Prototyp
 - [x] akl-core-system-lib Windows Implementation
 - [x] AKL.Cli Implementation
-- [ ] Linux Prototyp (Ohne Root Zugriff und ohne `plugdev`-Gruppe)
-- [ ] akl-core-system-lib Linux Implementation
+- [ ] [.line-through]#Linux Prototyp (Ohne Root Zugriff und ohne `plugdev`-Gruppe)#
+- [ ] [.line-through]#akl-core-system-lib Linux Implementation#
 - [ ] AKL.Gui
 
 NOTE: Die Implementationen wurden mit der Hilfe von Prototypen entwickelt, damit
@@ -530,15 +534,21 @@ VirtualLayer *-- AklConfiguration : needs
 Das Gui und die Cli können mit `dotnet publish -c Release` für die eigene 
 Platform gebaut werden. Wenn man die Option `--os **<OS>**` am Ende hinzufügt,
 kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
-`linux`), allerdings wird empfohlen das **<OS>** immer anzugeben.
+[.line-through]#`linux`#), allerdings wird empfohlen das **<OS>** immer
+anzugeben.
 
 .Windows
 [source, console]
 $ dotnet publish -c Release --os win
 
-.Linux
+.[.line-through]#Linux#
+[.line-through]
 [source, console]
 $ dotnet publish -c Release --os linux
+
+IMPORTANT: Support für Linux wurde eingestellt, weil es nicht möglich ist ohne
+Root-Berechtigung Keyboard-Events beliebig zu verändern / zu schicken und dass
+das wichtigste Feature für die Linux-Version gewesen wäre.
 
 .Anforderungen
 - https://dotnet.microsoft.com/en-us/download/dotnet/7.0[.NET 7.0 SDK]
