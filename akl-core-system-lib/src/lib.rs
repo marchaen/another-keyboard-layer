@@ -16,7 +16,8 @@
 //! virtual layer needs. The akl.common package and ffi module are highly
 //! coupled and have to be modified together whenever one of them changes.
 //! Unfortunately this is also the case for the [`virtual key`](crate::key::VirtualKey).
-#![allow(rustdoc::private_intra_doc_links)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::module_name_repetitions)]
 
 mod event;
 mod ffi;
@@ -98,8 +99,8 @@ impl AnotherKeyboardLayer {
         }
 
         Self {
-            configuration: Default::default(),
-            keyboard_hook_handle: Default::default(),
+            configuration: Configuration::default(),
+            keyboard_hook_handle: Option::default(),
         }
     }
 
@@ -108,13 +109,13 @@ impl AnotherKeyboardLayer {
     /// to be set.
     #[must_use]
     pub fn is_not_configured(&self) -> bool {
-        matches!(self.configuration.switch_key, None)
+        self.configuration.switch_key.is_none()
     }
 
     /// Checks if the native platform specific virtual layer is running.
     #[must_use]
     pub fn is_running(&self) -> bool {
-        matches!(self.keyboard_hook_handle, Some(_))
+        self.keyboard_hook_handle.is_some()
     }
 
     /// Starts the native virtual layer with a copy of the configuration.

@@ -17,6 +17,7 @@ use crate::{
 
 /// The action that caused this event which is either the pressing or releasing
 /// of any keyboard key.
+#[allow(unused)]
 #[derive(Debug, Clone, Copy)]
 pub enum Action {
     Press,
@@ -33,6 +34,7 @@ pub struct Event {
 
 /// Platform independent abstraction over actions that are taken in response to
 /// processing an event such as blocking or replacing it.
+#[allow(unused)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResponseAction {
     DoNothing,
@@ -41,6 +43,7 @@ pub enum ResponseAction {
 }
 
 /// Processes events according to the algorithm visualized in the **README**.
+#[allow(unused)]
 pub struct EventProcessor {
     switch_key: Key,
     default_combination: Option<KeyCombination>,
@@ -55,7 +58,7 @@ pub struct EventProcessor {
 ///
 /// # Panics
 ///
-/// Panics if the switch_key field of the configuration is none.
+/// Panics if the `switch_key` field of the configuration is none.
 impl From<Configuration> for EventProcessor {
     fn from(value: Configuration) -> Self {
         Self {
@@ -73,6 +76,7 @@ impl From<Configuration> for EventProcessor {
 
 impl EventProcessor {
     /// Process the event as specified in the **README**.
+    #[allow(unused)]
     pub fn process(&mut self, event: Event) -> ResponseAction {
         match event.action {
             Action::Press => {

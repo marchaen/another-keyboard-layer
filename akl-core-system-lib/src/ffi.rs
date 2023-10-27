@@ -28,6 +28,7 @@ pub struct AklContext;
 /// long as the raw context is also valid. Never hold on to this reference for a
 /// longer time than the corresponding pointer. (Although holding one doesn't
 /// mean the underlying memory can't be deallocated and thus cause ub anyway.)
+#[allow(clippy::inline_always)]
 #[inline(always)]
 fn akl_from_raw<'arbitrary>(
     raw: *mut AklContext,
@@ -73,7 +74,7 @@ impl TryFrom<FfiKey> for Key {
                 let parsing_result = char::from_u32(value.text);
 
                 if let Some(parsed_char) = parsing_result {
-                    return Ok(Key::Text(parsed_char));
+                    return Ok(Self::Text(parsed_char));
                 }
 
                 Err(())
@@ -82,7 +83,7 @@ impl TryFrom<FfiKey> for Key {
                 let parsing_result = VirtualKey::try_from(value.named);
 
                 if let Ok(virtual_key) = parsing_result {
-                    return Ok(Key::Virtual(virtual_key));
+                    return Ok(Self::Virtual(virtual_key));
                 }
 
                 Err(())
@@ -164,7 +165,7 @@ impl FfiResult {
 /// called for each created error message.
 #[no_mangle]
 pub extern "C" fn destroy_error_message(error_message: *mut i8) {
-    unsafe { std::ffi::CString::from_raw(error_message) };
+    let _ = unsafe { std::ffi::CString::from_raw(error_message) };
 }
 
 /// Allocates an akl context which can further be used to setup and start

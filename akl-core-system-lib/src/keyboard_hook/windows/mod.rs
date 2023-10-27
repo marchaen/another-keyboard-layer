@@ -4,6 +4,7 @@
 //!
 //! Using only the exposed api guarantees no undefined behavior and severe logic
 //! bugs (because of uncaught events that should have been processed).
+#![allow(clippy::cast_possible_truncation, clippy::cast_sign_loss, clippy::cast_possible_wrap)]
 
 mod translation;
 

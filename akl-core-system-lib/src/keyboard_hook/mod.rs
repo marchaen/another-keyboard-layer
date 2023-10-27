@@ -2,7 +2,7 @@
 //! directly calls the [`event processor`](crate::event::EventProcessor).
 //!
 //! This module just reexports the correct keyboard hook implementation
-//! depending on the target_os attribute. For documentation open the
+//! depending on the `target_os` attribute. For documentation open the
 //! implementation module directly.
 
 #[cfg(target_os = "windows")]

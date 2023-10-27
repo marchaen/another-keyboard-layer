@@ -207,7 +207,7 @@ macro_rules! define_virtual_key_codes {
         /// Tries to translate [`windows api virtual keys`](https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes)
         /// to actual virtual keys. This library defines a virtual key as any
         /// key that doesn't print characters when pressed but the windows api
-        /// includes letters A-Z and some oem keys that will fail the try_from.
+        /// includes letters A-Z and some oem keys that will fail the `try_from`.
         #[cfg(target_os = "windows")]
         impl TryFrom<VIRTUAL_KEY> for VirtualKey {
             type Error = VirtualKeyConversionError;
