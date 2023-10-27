@@ -43,7 +43,7 @@ Um GUI-Entwicklung mit C# und Interfacing von Native Bibliotheken, die in
 anderen Programmiersprachen geschrieben wurden, mit C# zu lernen, wird das
 Programm in folgende Komponenten aufgeteilt.
 
-=== Kern (akl-core-system-lib)
+=== Kern (`akl-core-system-lib`)
 
 Der Kern wird in Rust geschrieben und wird direkt mit dem jeweiligen
 Betriebssystem interagieren, um global Tastaturevents abzuhören und wie
@@ -54,7 +54,7 @@ und im Build-Vorgang automatisch CSharp Bindings für dieses generieren.
 - https://github.com/Narsil/rdev
 - https://github.com/Cysharp/csbindgen
 
-=== Graphische Benutzerschnittstelle (AKL.Gui)
+=== Graphische Benutzerschnittstelle (`AKL.Gui`)
 
 Die graphische Benutzerschnittstelle bietet eine Möglichkeit den virtuellen
 Layer komplett zu konfigurieren und diesen zu aktivieren oder zu deaktivieren.
@@ -66,7 +66,7 @@ Framework, welches von der Struktur sehr stark
 https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-wpf?view=vs-2022#what-is-wpf[WPF]
 ähnelt.
 
-=== Textbasierte Benutzerschnittstelle (AKL.Cli)
+=== Textbasierte Benutzerschnittstelle (`AKL.Cli`)
 
 Zusätzlich zur graphischen Schnittstelle soll die textbasierte
 Benutzerschnittstelle ein kleiner Wrapper um den Kern sein, der diesen nur mit
@@ -74,6 +74,12 @@ Hilfe der gespeicherten Konfiguration vom GUI initialisiert, außerdem sollte
 für die Implementierung, Microsofts eigens für das Entwickeln von CLIs erstellte
 Bibliothek https://github.com/dotnet/command-line-api[System.CommandLine]
 verwendet werden.
+
+=== Gemeinsame Funktionalität von Gui und Cli (`AKL.Common`)
+
+Dieses Modul sollte das Parsen und Schreiben der Konfigurationsdatei als auch
+die Interaktion mit `akl-core-system-lib` übernehmen, damit keine Logik
+unnötigerweise dupliziert wird.
 
 NOTE: Die Konfiguration soll im https://en.wikipedia.org/wiki/TOML[TOML] format
 gespeichert werden und in C# mit https://github.com/xoofx/Tomlyn[Tomlyn]
@@ -86,16 +92,6 @@ verarbeitet werden.
 @startuml
 !theme reddress-darkblue
 
-component "Core Library (""akl-core-system-library"")" as core
-component "Main User Interface (""AKL.Gui"")" as gui
-component "Basic Cli Wrapper (""AKL.Cli"")" as cli
-
-note left of core
-    Implements the
-    configurable
-    virtual layer.
-end note
-
 node "Operating System" {
     interface "Raw keyboard events" as keyboard
 
@@ -105,8 +101,26 @@ node "Operating System" {
     end note
 }
 
-gui --> core : configures and starts
-cli --> core : only starts
+component "Core Library (""akl-core-system-library"")" as core
+
+interface "Toml Configuration" as config
+component "Shared Functionality (""AKL.Common"")" as common
+
+component "Main User Interface (""AKL.Gui"")" as gui
+component "Basic Cli Wrapper (""AKL.Cli"")" as cli
+
+gui --> common : uses
+cli --> common : uses
+
+common --> core : configures, starts and stops
+config <- common : writes and reads
+
+note left of core
+    Implements the
+    configurable
+    virtual layer.
+end note
+
 core --> keyboard : interacts with
 
 @enduml
