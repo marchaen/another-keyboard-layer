@@ -5,7 +5,7 @@ public class KeyCombination
 
     public static char KEY_SEPARATOR = '+';
 
-    private Key[] keys;
+    private readonly Key[] keys;
 
     public KeyCombination(Key[] keys)
     {
@@ -46,7 +46,7 @@ public class KeyCombination
         var keys = rawKeys.Select(Key.TryParse);
 
         if (keys.Count() != keys.Distinct().Count())
-            throw new ArgumentException("Each key can only be used once in each combination.");
+            throw new ArgumentException("A key can only be used once in each combination.");
 
         return new KeyCombination(keys.ToArray());
     }

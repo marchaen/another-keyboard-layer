@@ -5,15 +5,6 @@ public class KeyTests
 {
 
     [TestMethod]
-    public void KeyCombinationToString()
-    {
-        Assert.AreEqual("Shift+a", new KeyCombination(new Key[] {
-            new Key(VirtualKeyCode.Shift, null, KeyKind.Virtual),
-            new Key(null, 'a', KeyKind.Text)
-        }).ToString());
-    }
-
-    [TestMethod]
     public void ParseVirtualKeyCodeFromString()
     {
         Assert.AreEqual(VirtualKeyCode.Back, VirtualKeyCodeParser.Parse("Back"));
@@ -35,8 +26,8 @@ public class KeyTests
         Assert.AreEqual(expectedKey, parsedKey);
         Assert.AreEqual(expectedKey.GetHashCode(), parsedKey.GetHashCode());
 
-        Assert.ThrowsException<ArgumentOutOfRangeException>(() => Key.TryParse("With Whitespace"));
-        Assert.ThrowsException<ArgumentException>(() => Key.TryParse("Something"));
+        Assert.ThrowsException<ArgumentException>(() => Key.TryParse("With Whitespace"));
+        Assert.ThrowsException<ArgumentException>(() => Key.TryParse("This key doesn't exist"));
     }
 
     [TestMethod]
@@ -78,6 +69,17 @@ public class KeyTests
         Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("Shift+Shift"));
         // Too many keys
         Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("Shift+a+b+c+d"));
+        // Empty key surrounded by valid keys
+        Assert.ThrowsException<ArgumentException>(() => KeyCombination.TryParse("Shift+ +a"));
+    }
+
+    [TestMethod]
+    public void KeyCombinationToString()
+    {
+        Assert.AreEqual("Shift+a", new KeyCombination(new Key[] {
+            new Key(VirtualKeyCode.Shift, null, KeyKind.Virtual),
+            new Key(null, 'a', KeyKind.Text)
+        }).ToString());
     }
 
 }

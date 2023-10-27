@@ -26,20 +26,20 @@ public class Key
     ///     key. So any single character input will be treated as a text key.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     If the raw input contains any whitespace as defined
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    ///     If no virtual key code with the specified name could be found or if 
+    ///     the raw input contains any whitespace as defined
     ///     <a href="https://learn.microsoft.com/en-us/dotnet/api/system.char.iswhitespace?view=net-7.0#system-char-iswhitespace(system-char)">
     ///         here
     ///     </a>.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     If no virtual key code with the specified name could be found.
     /// </exception>
     /// <returns>A key that can further be used in key combinations.</returns>
     public static Key TryParse(string raw)
     {
         if (raw.Any(char.IsWhiteSpace))
         {
-            throw new ArgumentOutOfRangeException("A single key can't contain any whitespace.");
+            throw new ArgumentException("A single key can't contain any whitespace.");
         }
 
         var virtualKey = VirtualKeyCodeParser.Parse(raw);
@@ -48,7 +48,10 @@ public class Key
         {
             if (raw.Length != 1)
             {
-                throw new ArgumentException($"Couldn't parse \"{raw}\" as a virtual nor plain text key.");
+                throw new ArgumentException(
+                    $"Couldn't parse \"{raw}\" with a length of {raw.Length} as " + 
+                    "a virtual nor plain text key."
+                );
             }
 
             return new Key(null, raw[0], KeyKind.Text);
