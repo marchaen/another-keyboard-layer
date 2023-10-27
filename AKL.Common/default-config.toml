@@ -1,5 +1,8 @@
 # Sets the key which should activate the virtual layer so that your mappings are
 # actually invoked when you press the specified target key combination.
+#
+# Following resource lists all possible named keys without the "VK" prefix.
+# https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 # 
 # Note: This program differentiates between "key" and "key combination" by
 # wether a single key or multiple distinct keys on the keyboard are pressed. 
@@ -15,26 +18,26 @@
 # possible for alphabetic characters because the parser will see the upper case
 # letter and try to find a special / named key with it instead e. g. "F" => 
 # Search for keys that start with "F".
-switch-key="CapsLock"
+switch_key = "Capital"
 
 # This key combination will be simulated if you press and release the switch key
 # without invoking any mappings.
 #
 # Can be disabled by setting it to "".
-default-simulation-combination="Escape"
+default_simulation_combination = "Escape"
 
 # Autostart with the operating system
-start-with-system = false
+start_with_system = "False"
 
 # All mappings are defined as "target key combination" and "replacement key
 # combination" (The details about key combinations can be found at the top).
 #
 # Note: All target key combinations are additional to your switch key.
 [mappings]
-"h"="ArrowLeft"
-"j"="ArrowDown"
-"k"="ArrowUp"
-"l"="ArrowRight"
-"Ctrl+j"="PageDown"
-"Ctrl+k"="PageUp"
-"Shift+d"="Delete"
+"h" = "Left"
+"j" = "Down"
+"k" = "Up"
+"l" = "Right"
+"Control+j" = "Prior"
+"Control+k" = "Next"
+"Shift+d" = "Delete"
