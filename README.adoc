@@ -232,6 +232,14 @@ kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
 `x86_64-unknown-linux-gnu` (wird auch benötigt wenn nur für die eigene Platform
 gebaut wird)
 
+=== Dokumentation
+
+Folgende Befehle generieren HTML-Dokumente aus roh Text von Source Code und
+den AsciiDocs.
+
+Readme mit Diagrammen:: `./build-documentation.sh`
+akl-core-system-lib Dokumentation:: `cargo doc --no-deps --document-private-items`
+
 == Konfigurationsdatei
 
 Die folgende Konfiguration sollte dem Benutzer über das Gui möglich sein, 
