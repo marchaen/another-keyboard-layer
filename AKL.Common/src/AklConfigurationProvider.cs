@@ -33,8 +33,15 @@ public class AklConfigurationProvider
 
         if (!file.Exists)
         {
-            path = new FileInfo(Assembly.GetExecutingAssembly().Location).DirectoryName ?? ".";
-            path += "/default-config.toml";
+            var assembly = Assembly.GetEntryAssembly();
+            var location = assembly?.Location;
+
+            if (assembly != null && !string.IsNullOrEmpty(location))
+                path = new FileInfo(location).FullName ?? ".";
+            else
+                path = ".";
+
+            path = Path.Combine(path, "default-config.toml");
         }
 
         return new AklConfigurationProvider(file, AklConfiguration.FromString(File.ReadAllText(path)));
