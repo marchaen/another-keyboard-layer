@@ -86,44 +86,6 @@ impl Drop for HookHandle {
     }
 }
 
-fn run_message_queue() {
-    let mut message = MSG::default();
-
-    Debugger::write("Running message queue");
-    loop {
-        // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
-        let result =
-            unsafe { GetMessageW(ptr::addr_of_mut!(message), None, WM_KEYFIRST, WM_KEYLAST) };
-
-        Debugger::write(&format!("Message result: {}", result.0));
-
-        // Zero means exit, -1 is an error and anything else indicates that the
-        // message should be dispatched.
-        match result.0 {
-            0 => break,
-            -1 => {
-                let error_message = unsafe { GetLastError() }
-                    .to_hresult()
-                    .message()
-                    .to_string_lossy();
-
-                Debugger::write(&format!("Error retrieving message: {error_message}"));
-            }
-            _ => {
-                Debugger::write("Translate message");
-                // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
-                // Returns if the message was translated (WM_CHAR event) or not.
-                unsafe { TranslateMessage(ptr::addr_of!(message)) };
-
-                Debugger::write("Dispatching message");
-                // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessage
-                // Note: The return value should be ignored.
-                unsafe { DispatchMessageW(ptr::addr_of!(message)) };
-            }
-        }
-    }
-}
-
 // See https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc
 unsafe extern "system" fn raw_keyboard_input_hook(
     code: i32,
@@ -166,4 +128,42 @@ unsafe extern "system" fn raw_keyboard_input_hook(
     }
 
     CallNextHookEx(HHOOK(0), code, wparam, lparam)
+}
+
+fn run_message_queue() {
+    let mut message = MSG::default();
+
+    Debugger::write("Running message queue");
+    loop {
+        // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
+        let result =
+            unsafe { GetMessageW(ptr::addr_of_mut!(message), None, WM_KEYFIRST, WM_KEYLAST) };
+
+        Debugger::write(&format!("Message result: {}", result.0));
+
+        // Zero means exit, -1 is an error and anything else indicates that the
+        // message should be dispatched.
+        match result.0 {
+            0 => break,
+            -1 => {
+                let error_message = unsafe { GetLastError() }
+                    .to_hresult()
+                    .message()
+                    .to_string_lossy();
+
+                Debugger::write(&format!("Error retrieving message: {error_message}"));
+            }
+            _ => {
+                Debugger::write("Translate message");
+                // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
+                // Returns if the message was translated (WM_CHAR event) or not.
+                unsafe { TranslateMessage(ptr::addr_of!(message)) };
+
+                Debugger::write("Dispatching message");
+                // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessage
+                // Note: The return value should be ignored.
+                unsafe { DispatchMessageW(ptr::addr_of!(message)) };
+            }
+        }
+    }
 }
