@@ -3,21 +3,26 @@ mod events;
 mod send_input;
 mod translation;
 
-use std::{collections::HashMap, ptr};
+use std::{
+    collections::HashMap, os::windows::io::AsRawHandle, ptr, sync::mpsc, thread, time::Duration,
+};
 
-use send_input::send_key_combination;
 use windows::Win32::{
-    Foundation::{GetLastError, BOOL, HMODULE, LPARAM, LRESULT, WPARAM},
-    System::Console::{SetConsoleCtrlHandler, CTRL_BREAK_EVENT, CTRL_CLOSE_EVENT, CTRL_C_EVENT},
+    Foundation::{BOOL, HANDLE, HMODULE, LPARAM, LRESULT, WPARAM},
+    System::{
+        Console::{SetConsoleCtrlHandler, CTRL_BREAK_EVENT, CTRL_CLOSE_EVENT, CTRL_C_EVENT},
+        Threading::GetThreadId,
+    },
     UI::WindowsAndMessaging::{
-        CallNextHookEx, DispatchMessageW, GetMessageW, SetWindowsHookExW, UnhookWindowsHookEx,
-        HHOOK, HOOKPROC, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL, WINDOWS_HOOK_ID, WM_KEYDOWN,
-        WM_KEYFIRST, WM_KEYLAST, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
+        CallNextHookEx, GetMessageW, PostThreadMessageW, SetWindowsHookExW, UnhookWindowsHookEx,
+        HHOOK, HOOKPROC, KBDLLHOOKSTRUCT, MSG, WH_KEYBOARD_LL, WINDOWS_HOOK_ID, WM_APP, WM_KEYDOWN,
+        WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
     },
 };
 
 use debugger::Debugger;
 use events::{Action, Event, EventProcessor, Key, KeyCombination};
+use send_input::send_key_combination;
 use translation::{translate_to_character, windows_to_virtual_key, VirtualKey};
 
 fn main() {
@@ -54,11 +59,36 @@ fn main() {
         ))
     };
 
-    let keyboard_hook = HookHandle::register(
-        "global raw keyboard".to_owned(),
-        WH_KEYBOARD_LL,
-        Some(raw_keyboard_input_hook),
-    );
+    let (keyboard_hook_sender, keyboard_hook_receiver) = mpsc::channel();
+
+    let message_queue = thread::spawn(move || {
+        // Important: The hook has to be registered from the same thread in
+        // which the message queue is running. That's why there is a need
+        // to explicitly send the handle to the main thread.
+        let _ = keyboard_hook_sender.send(HookHandle::register(
+            "global raw keyboard".to_owned(),
+            WH_KEYBOARD_LL,
+            Some(raw_keyboard_input_hook),
+        ));
+        drop(keyboard_hook_sender);
+
+        run_message_queue();
+    });
+
+    let thread_id = {
+        // How to convert std library handle to windows-rs handle: https://stackoverflow.com/a/73574560
+        let thread_handle = HANDLE(message_queue.as_raw_handle() as isize);
+
+        // See https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getthreadid
+        unsafe { GetThreadId(thread_handle) }
+    };
+
+    let keyboard_hook = keyboard_hook_receiver
+        .recv()
+        .expect("Should receive hook from message queue thread almost immediately.");
+    drop(keyboard_hook_receiver);
+
+    // TODO: Is the following comment still relevant?
 
     // Explicit shutdown callback is needed because windows will kill the
     // process without terminating the message queue (which would have been done
@@ -69,11 +99,23 @@ fn main() {
     // needed in the real library implementation because the c# clients will
     // take care of graceful shutdown instead.
     set_shutdown_callback(move || {
+        Debugger::write(&format!("Shutdown {thread_id}"));
+        // See post thread message https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postthreadmessagew
+        // See WM_QUIT message https://learn.microsoft.com/en-us/windows/win32/winmsg/wm-quit
+        let result = unsafe { PostThreadMessageW(thread_id, WM_APP + 1, WPARAM(0), LPARAM(0)) };
+        Debugger::write(&format!("Shutdown result {result:?}"));
+
         drop(keyboard_hook);
         Debugger::destroy();
     });
 
-    run_message_queue();
+    // In the real library the client will continue the execution of the program
+    // at this point.
+
+    loop {
+        thread::sleep(Duration::from_secs(10));
+        Debugger::write("Heartbeat");
+    }
 }
 
 static mut CALLBACK: Option<Box<dyn FnOnce()>> = None;
@@ -233,34 +275,16 @@ unsafe extern "system" fn raw_keyboard_input_hook(
 //
 // See https://learn.microsoft.com/en-us/windows/win32/winmsg/lowlevelkeyboardproc#remarks
 fn run_message_queue() {
+    Debugger::write("Running message queue and block until end");
+
     let mut message = MSG::default();
 
-    Debugger::write("Running message queue");
-    loop {
-        // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
-        let result =
-            unsafe { GetMessageW(ptr::addr_of_mut!(message), None, WM_KEYFIRST, WM_KEYLAST) };
-
-        Debugger::write(&format!("Message result: {}", result.0));
-
-        // Zero means exit, -1 is an error and anything else indicates that the
-        // message should be dispatched.
-        match result.0 {
-            0 => break,
-            -1 => {
-                let error_message = unsafe { GetLastError() }
-                    .to_hresult()
-                    .message()
-                    .to_string_lossy();
-
-                Debugger::write(&format!("Error retrieving message: {error_message}"));
-            }
-            _ => {
-                Debugger::write("Dispatching message");
-                // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessage
-                // Note: The return value should be ignored.
-                unsafe { DispatchMessageW(ptr::addr_of!(message)) };
-            }
-        }
-    }
+    // We don't need to handle the return type we only want to listen to the
+    // first message that gets posted anyway
+    // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
+    let result = unsafe { GetMessageW(ptr::addr_of_mut!(message), None, 0, 0) };
+    Debugger::write(&format!(
+        "Got message shuting down message queue {1:#X} (Status: {0})",
+        result.0, message.message
+    ));
 }
