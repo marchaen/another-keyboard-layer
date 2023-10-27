@@ -52,9 +52,9 @@ pub struct EventProcessor {
 
 /// Convenience implementation for creating an event processor with the specific
 /// configuration which will fail if the `switch_key` field is none.
-/// 
+///
 /// # Panics
-/// 
+///
 /// Panics if the switch_key field of the configuration is none.
 impl From<Configuration> for EventProcessor {
     fn from(value: Configuration) -> Self {

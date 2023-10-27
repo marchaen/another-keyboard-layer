@@ -28,7 +28,7 @@ use std::collections;
 use thiserror::Error;
 
 use key::{Key, KeyCombination};
-use keyboard_hook::Handle as KeyboardHookHandle;
+use keyboard_hook::{Handle as KeyboardHookHandle, HandleError};
 
 /// Represents any errors that can occur while interacting with the virtual
 /// layer.
@@ -40,6 +40,8 @@ pub enum AklError {
     AlreadyRunning,
     #[error("Akl was already stopped.")]
     AlreadyStopped,
+    #[error("{0}")]
+    KeyboardHookError(#[from] HandleError),
 }
 
 /// Configuration that is needed for the virtual layer to work.
@@ -135,7 +137,7 @@ impl AnotherKeyboardLayer {
         // Configuration is valid so .into() won't panic.
         self.keyboard_hook_handle = Some(KeyboardHookHandle::register(
             self.configuration.clone().into(),
-        ));
+        )?);
 
         Ok(())
     }
