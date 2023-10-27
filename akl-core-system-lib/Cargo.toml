@@ -15,8 +15,6 @@ thiserror = "1.0.44"
 num_enum = "0.7.0"
 log = { version = "0.4.20", features = ["release_max_level_off"] }
 simplelog = { version = "0.12.1", default-features = false, features = ["local-offset"] }
-
-[target.'cfg(windows)'.dependencies]
 windows = { version = "0.48.0", features = [
     "Win32_Foundation",
     "Win32_UI_WindowsAndMessaging",
@@ -30,3 +28,7 @@ csbindgen = "1.7.3"
 
 [profile.release]
 strip = true
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"

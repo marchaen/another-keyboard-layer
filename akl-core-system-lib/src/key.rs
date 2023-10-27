@@ -11,7 +11,6 @@ use std::hash::Hash;
 use num_enum::TryFromPrimitive;
 use thiserror::Error;
 
-#[cfg(target_os = "windows")]
 use windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY;
 
 /// Represents a single key. Not very useful by itself.
@@ -187,7 +186,6 @@ macro_rules! define_virtual_key_codes {
         pub enum VirtualKeyConversionError {
             #[error("No virtual key with the specified name exists.")]
             NoKeyWithSpecifiedName,
-            #[cfg(target_os = "windows")]
             #[error("No virtual key with the specified code ({:X}) exists.", (.0).0)]
             NoKeyWithSpecifiedCode(VIRTUAL_KEY),
         }
@@ -208,7 +206,6 @@ macro_rules! define_virtual_key_codes {
         /// to actual virtual keys. This library defines a virtual key as any
         /// key that doesn't print characters when pressed but the windows api
         /// includes letters A-Z and some oem keys that will fail the `try_from`.
-        #[cfg(target_os = "windows")]
         impl TryFrom<VIRTUAL_KEY> for VirtualKey {
             type Error = VirtualKeyConversionError;
 
@@ -222,7 +219,6 @@ macro_rules! define_virtual_key_codes {
 
         /// Akl virtual keys are a subset of windows virtual keys so this
         /// conversion just returns the translation as specified in the macro.
-        #[cfg(target_os = "windows")]
         impl From<VirtualKey> for VIRTUAL_KEY {
             fn from(virtual_key: VirtualKey) -> Self {
                 match virtual_key {
@@ -231,7 +227,6 @@ macro_rules! define_virtual_key_codes {
             }
         }
 
-        #[cfg(target_os = "windows")]
         impl VirtualKey {
             /// Convenience function for converting to the raw windows virtual
             /// key code translation.
@@ -344,7 +339,6 @@ define_virtual_key_codes!(
 mod tests {
     use std::{collections::hash_map::DefaultHasher, hash::Hasher};
 
-    #[cfg(target_os = "windows")]
     use windows::Win32::UI::Input::KeyboardAndMouse::VK_TAB;
 
     use super::*;
@@ -506,7 +500,6 @@ mod tests {
         );
     }
 
-    #[cfg(target_os = "windows")]
     #[test]
     fn test_virtual_key_conversion_windows() {
         assert_eq!(Ok(VirtualKey::Tab), VK_TAB.try_into());

@@ -34,9 +34,7 @@
 
   <Target Name="BuildNativeLibraryRelease" BeforeTargets="PrepareForBuild" Condition="'$(Configuration)' == 'Release'">
     <!-- Crosscompile native lib for windows and linux -->
-    <Exec Command="cross build --release --target x86_64-pc-windows-gnu --target-dir build-win"
-      WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
-    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu --target-dir build-linux"
+    <Exec Command="cross build --release --target x86_64-pc-windows-gnu"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
 
     <!-- Copy generated bindings from the native lib -->
@@ -45,12 +43,7 @@
 
     <!-- Include native dynamic librarys as output files -->
     <ItemGroup>
-      <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/release/*.dll">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <PublishState>Included</PublishState>
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </Content>
-      <Content Include="../akl-core-system-lib/build-linux/x86_64-unknown-linux-gnu/release/*.so">
+      <Content Include="../akl-core-system-lib/target/x86_64-pc-windows-gnu/release/*.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
@@ -60,15 +53,13 @@
 
   <Target Name="BuildNativeLibraryDebug" BeforeTargets="PrepareForBuild" Condition="'$(Configuration)' == 'Debug'">
     <!-- Crosscompile native lib for windows and linux -->
-    <Exec Command="cross build --target x86_64-pc-windows-gnu --target-dir build-win"
+    <Exec Command="cross build --target x86_64-pc-windows-gnu"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
-    <Exec Command="cross build --target x86_64-unknown-linux-gnu --target-dir build-linux"
-      WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" />
 
     <!-- Compile debug server -->
-    <Exec Command="cross build --release --target x86_64-pc-windows-gnu --target-dir build-win --bin debug-server"
+    <Exec Command="cross build --release --target x86_64-pc-windows-gnu --bin debug-server"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
-    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu --target-dir build-linux --bin debug-server"
+    <Exec Command="cross build --release --target x86_64-unknown-linux-gnu --bin debug-server"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
 
     <!-- Copy generated bindings from the native lib -->
@@ -77,26 +68,12 @@
 
     <!-- Include native dynamic librarys as output files -->
     <ItemGroup>
-
-      <!-- windows -->
-      <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/debug/*.dll">
+      <Content Include="../akl-core-system-lib/target/x86_64-pc-windows-gnu/debug/*.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
       </Content>
-      <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/release/debug-server.exe">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <PublishState>Included</PublishState>
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </Content>
-
-      <!-- linux -->
-      <Content Include="../akl-core-system-lib/build-linux/x86_64-unknown-linux-gnu/debug/*.so">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-          <PublishState>Included</PublishState>
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      </Content>
-      <Content Include="../akl-core-system-lib/build-linux/x86_64-unknown-linux-gnu/release/debug-server">
+      <Content Include="../akl-core-system-lib/target/x86_64-pc-windows-gnu/release/debug-server.exe">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
           <ExcludeFromSingleFile>true</ExcludeFromSingleFile>

@@ -455,7 +455,3 @@ documentation-build
 
 # Automatically generated native library bindings
 AKL.Common/bindings
-
-# Custom target directories for core system lib
-akl-core-system-lib/build-win
-akl-core-system-lib/build-linux
