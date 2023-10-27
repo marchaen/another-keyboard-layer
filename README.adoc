@@ -14,6 +14,7 @@ endif::[]
 // Special blocks
 :!example-caption:
 :!figure-caption:
+:!table-caption:
 // Sourcecode highlighting
 :source-highlighter: rouge
 :rouge-style: base16.light
@@ -613,3 +614,66 @@ Cli starten.
 ----
 include::AKL.Common/default-config.toml[]
 ----
+
+== Lizenz
+
+Diese Software ist lizenziert unter der
+https://www.apache.org/licenses/LICENSE-2.0[Apache License, Version 2.0].
+
+Sofern nicht ausdrücklich anderes angeben, wird jeder Beitrag der absichtlich
+für die Aufnahme in dieses Werk eingereicht wird, wie in der Apache-2.0-Lizenz
+definiert, ohne zusätzliche Bedingungen oder Konditionen wie oben lizenziert.
+
+=== Drittpartei Bibliotheken
+
+Diese Software verwendet die folgenden Bibliotheken unter Einhaltung der
+dazugehörigen Lizenzvereinbarungen.
+
+.AKL.Common
+|===
+| Bibliothek | Lizenz
+
+| https://github.com/xoofx/Tomlyn[Tomlyn]
+| https://opensource.org/license/bsd-2-clause/[Simplified BSD License]
+
+|===
+
+.AKL.Cli
+|===
+| Bibliothek | Lizenz
+
+| https://github.com/dotnet/command-line-api[System.CommandLine]
+| https://opensource.org/license/mit/[MIT]
+
+|===
+
+.akl-core-system-lib
+|===
+| Bibliothek | Lizenz
+
+| https://github.com/dtolnay/thiserror[thiserror]
+| https://opensource.org/license/apache-2-0/[Apache-2.0] or
+https://opensource.org/license/mit/[MIT]
+
+| https://github.com/illicitonion/num_enum[num_enum]
+| https://opensource.org/license/bsd-3-clause/[BSD-3],
+https://opensource.org/license/apache-2-0/[Apache-2.0] or
+https://opensource.org/license/mit/[MIT]
+
+| https://github.com/rust-lang/log[log]
+| https://opensource.org/license/apache-2-0/[Apache-2.0] or
+https://opensource.org/license/mit/[MIT]
+
+| https://github.com/drakulix/simplelog.rs[simplelog]
+| https://opensource.org/license/apache-2-0/[Apache-2.0] or
+https://opensource.org/license/mit/[MIT]
+
+| https://github.com/microsoft/windows-rs[windows]
+| https://opensource.org/license/apache-2-0/[Apache-2.0] or
+https://opensource.org/license/mit/[MIT]
+
+| https://github.com/Cysharp/csbindgen/[csbindgen]
+| https://opensource.org/license/apache-2-0/[Apache-2.0] or
+https://opensource.org/license/mit/[MIT]
+
+|===
