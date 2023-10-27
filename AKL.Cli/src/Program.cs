@@ -1,29 +1,20 @@
 ﻿using AKL.Common;
 
-Console.WriteLine("Simple interactive key combination parser! [Ctrl + C to quit]");
+Console.WriteLine("Start virtual layer...");
 
-string? rawKeyCombination;
-KeyCombination result;
+// See verbatim text: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/verbatim
+var raw_config = @"
+switch_key = ""CapsLock""
+start_with_system = false
+default_simulation_combination = """"
+[mappings]
+""a""=""o""
+";
 
-while (true)
-{
-    rawKeyCombination = Console.ReadLine();
+var configuration = AklConfiguration.FromString(raw_config);
 
-    if (rawKeyCombination == null)
-    {
-        Console.WriteLine("Bye");
-        break;
-    }
+var virtualLayer = new VirtualLayer(configuration);
+virtualLayer.Update();
 
-    try
-    {
-        result = KeyCombination.TryParse(rawKeyCombination);
-    }
-    catch (ArgumentException exception)
-    {
-        Console.WriteLine($"Unfortunately that input wasn't a valid key combination: {exception.Message}");
-        continue;
-    }
-
-    Console.WriteLine($"You typed the key combination: {result.ToString()} ({result.GetHashCode()})");
-}
+Console.ReadKey();
+Console.WriteLine("Stopped.");
