@@ -14,4 +14,12 @@ Auf diesen virtuellen Layer können schwer zu erreichende Tasten oder
 komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit 
 einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden.
 
+== Features
+
+- Konfigurierbare Layer-Umschalttaste
+- Standarttaste die gesendet wird, für den Fall das keine Taste im virtuellen 
+Layer gedruckt wurde.
+- Sprachunabhängige Implementation der Tastenwerte
+- Textbasierte und auch graphische Konfigurationsmöglichkeiten
+
 // TODO: Informationen über Komponenten, Features, Verwendete Bibliotheken, etc.
