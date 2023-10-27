@@ -38,7 +38,7 @@ internal class TomlAklConfiguration : ITomlMetadataProvider
     public bool StartWithSystem { get; set; }
     public string? SwitchKey { get; set; }
     public string? DefaultSimulationCombination { get; set; }
-    public Dictionary<String, String>? Mappings { get; set; }
+    public Dictionary<string, string>? Mappings { get; set; }
 
     // Storage for comments in the configuration file so that they can be saved
     // back to file when the in memory configuration gets updated.

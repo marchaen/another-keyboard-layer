@@ -8,4 +8,5 @@ for dir in "./AKL."*/
 do
     rm -rf "$dir"bin
     rm -rf "$dir"obj
+    rm -rf "$dir"TestResults
 done
