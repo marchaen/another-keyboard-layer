@@ -21,10 +21,11 @@ def main():
 
 def get_asciidoctor_binaries(use_docker: bool) -> (str, str):
     if use_docker:
-        return ("asciidoctor", "asciidoctor-pdf")
+        return ("asciidoctor", "asciidoctor-pdf", "asciidoctor -b manpage")
 
     asciidoctor = shutil.which("asciidoctor")
     asciidoctor_pdf = shutil.which("asciidoctor-pdf")
+    asciidoctor_man = asciidoctor + " -b manpage"
 
     if asciidoctor is None or asciidoctor_pdf is None:
         print("""
@@ -38,7 +39,7 @@ def get_asciidoctor_binaries(use_docker: bool) -> (str, str):
               """)
         exit()
 
-    return (asciidoctor, asciidoctor_pdf)
+    return (asciidoctor, asciidoctor_pdf, asciidoctor_man)
 
 
 def execute_command(description: str, command: str, use_result=False, cwd="."):
@@ -64,7 +65,7 @@ def execute_command(description: str, command: str, use_result=False, cwd="."):
 
 
 def generate_general_documentation(use_docker: bool, out_dir: Path):
-    asciidoctor, asciidoctor_pdf = get_asciidoctor_binaries(use_docker)
+    asciidoctor, pdf, manpage = get_asciidoctor_binaries(use_docker)
 
     git_commit = execute_command(
         "Get git commit",
@@ -103,7 +104,7 @@ def generate_general_documentation(use_docker: bool, out_dir: Path):
     execute_command(
         "Generating documentation in pdf format",
         base_command.format(
-            binary=asciidoctor_pdf,
+            binary=pdf,
             out_dir=out_dir,
             file="README.adoc"
         )
@@ -113,7 +114,7 @@ def generate_general_documentation(use_docker: bool, out_dir: Path):
     execute_command(
         "Generating Manpage for the cli",
         base_command.format(
-            binary=asciidoctor,
+            binary=manpage,
             out_dir=out_dir.joinpath("man", "man1"),
             file="Manpage.adoc"
         )
@@ -129,6 +130,7 @@ def generate_general_documentation(use_docker: bool, out_dir: Path):
         # exactly one non-displayable character long.
         shutil.rmtree("./?")
         return
+
 
 if __name__ == "__main__":
     main()
