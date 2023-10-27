@@ -8,6 +8,7 @@ ifdef::commit-hash[]
 :revremark: Commit: {commit-hash}
 endif::[]
 // Translations
+:!figure-caption:
 :toc-title: Inhaltsverzeichnis
 :note-caption: Anmerkung
 // Source Code highlighting
@@ -55,9 +56,10 @@ Betriebssystem interagieren, um global Tastaturevents abzuhören und wie
 konfiguriert zu verändern. Außerdem wird der Kern ein C Interface bereit stellen
 und im Build-Vorgang automatisch CSharp Bindings für dieses generieren.
 
-.Relevante Tools und Bibliotheken
+.Relevante Tools, Bibliotheken und Ressourcen
 - https://github.com/Narsil/rdev
 - https://github.com/Cysharp/csbindgen
+- https://learn.microsoft.com/en-us/windows/win32/inputdev/keyboard-input[Win32 Keyboard Input]
 
 === Graphische Benutzerschnittstelle (`AKL.Gui`)
 
@@ -92,6 +94,78 @@ automatisch angewendet werden z. b. Autostart An / Aus.
 NOTE: Die Konfiguration soll im https://en.wikipedia.org/wiki/TOML[TOML] format
 gespeichert werden und in C# mit https://github.com/xoofx/Tomlyn[Tomlyn]
 verarbeitet werden.
+
+.Definition der Api für Cli und Gui
+[plantuml, target="common-api-definition", format=svg]
+....
+@startuml
+!theme reddress-darkblue
+
+enum SpecialKeys {
+    Ctrl,
+    Shift,
+    Space,
+    ...
+}
+
+note left of SpecialKeys::...
+Steht für die restlichen Special / Named Keys, allerdings
+macht es keinen Sinn diese hier aufzulisten.
+end note
+
+enum KeyKind {
+    Simple,
+    Special
+}
+
+class Key {
+    {field} -SpecialKey? specialKey
+    {field} -Char? unicodeKey
+    {field} -KeyKind kind
+    {static} {method} +Key TryParse(string raw)
+}
+
+Key *-- SpecialKeys
+Key *-- KeyKind
+
+class KeyCombination {
+    {field} -Key[] keys;
+    {static} {method} +KeyCombination TryParse(string raw)
+}
+
+note top of KeyCombination
+Jede Tastenkombination kann maximal
+aus 4 Tasten bestehen. Leider gibt
+es keinen ergonomischen Weg dies in
+C# Klassen darzustellen.
+end note
+
+KeyCombination o-- Key
+
+class VirtualLayer {
+    {field} +bool Autostart
+    {field} +Key SwitchKey
+    {field} +KeyCombination? DefaultCombination
+    {field} +Dictionary<KeyCombination, KeyCombination> Mappings
+    {method} +Update()
+}
+
+VirtualLayer o- KeyCombination
+VirtualLayer o- Key
+
+class AklConfiguration {
+    {field} -FileInfo file
+    {field} -Toml configuration
+    {static} {method} +AklConfiguration ReadFromFile(FileInfo file)
+    {static} {method} +AklConfiguration WithSaveDefault(FileInfo output)
+    {method} +VirtualLayer TryParse()
+    {method} +bool SaveToFile()
+}
+
+VirtualLayer -- AklConfiguration
+
+@enduml
+....
 
 === Überblick über die Beziehungen der Komponenten
 

@@ -2,7 +2,8 @@
 # actually invoked when you press the specified target key combination.
 # 
 # Note: This program differentiates between "key" and "key combination" by
-# wether a single key or multiple keys on the keyboard are pressed.
+# wether a single key or multiple distinct keys on the keyboard are pressed. 
+# Each key combination can't be longer than four keys.
 #
 # For example the following wouldn't be a valid switch-key: "Shift+s"
 #
@@ -10,11 +11,16 @@
 # "Ctrl", "Shift", "F1", etc.) which means "4" and "$" are not the same
 # combination even though they share the same physical key. So it's possible to
 # define "$" as "Shift+4" however this is strongly discouraged and you should
-# rather use the actual character e. g. "$" wherever possible.
+# rather use the actual character e. g. "$" wherever possible. The same isn't
+# possible for alphabetic characters because the parser will see the upper case
+# letter and try to find a special / named key with it instead e. g. "F" => 
+# Search for keys that start with "F".
 switch-key="CapsLock"
 
 # This key combination will be simulated if you press and release the switch key
 # without invoking any mappings.
+#
+# Can be disabled by setting it to "".
 default-simulation-combination="Escape"
 
 # Autostart with the operating system
