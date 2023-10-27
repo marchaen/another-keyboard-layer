@@ -12,8 +12,11 @@ namespace AKL.Cli;
 public class ApplicationBuilder
 {
 
-    public static Application Build(FileInfo? configFile, bool watchConfig)
+    public static Application Build(FileInfo? configFile, bool watchConfig, bool hideWindow)
     {
+        if (hideWindow)
+            ConsoleWindowHider.Execute();
+
         if (configFile != null && !configFile.Exists)
         {
             ColorPrinter.WriteError("The config option only accepts existing files.");

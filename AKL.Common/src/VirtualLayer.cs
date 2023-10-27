@@ -14,7 +14,9 @@ public unsafe class VirtualLayer
 {
 
     public AklConfiguration Configuration { get; set; }
+
     private AklContext* akl;
+    private Autostart autostart;
 
     /// <summary>
     ///     Initializes the akl context associated with this virtual layer call
@@ -31,7 +33,11 @@ public unsafe class VirtualLayer
     public VirtualLayer(AklConfiguration configuration)
     {
         Configuration = configuration;
+
         akl = AklCoreNativeInterface.init();
+        autostart = Autostart.WithAppName("another-keyboard-layer")
+            .WithCmdArguments("--hide-window")
+            .Build();
 
         AppDomain.CurrentDomain.ProcessExit += (_, _) => this.Destroy();
     }
@@ -47,7 +53,9 @@ public unsafe class VirtualLayer
 
         Stop();
 
-        SetStartup(Configuration.Autostart);
+        if (OperatingSystem.IsWindows())
+            autostart.SetAutostart(Configuration.Autostart);
+
         AklCoreNativeInterface.set_switch_key(akl, Configuration.SwitchKey.ToFfi());
 
         if (Configuration.DefaultCombination != null)
@@ -98,31 +106,6 @@ public unsafe class VirtualLayer
             AklCoreNativeInterface.destroy(akl);
             akl = null;
         }
-    }
-
-    // See https://stackoverflow.com/a/675347
-    private void SetStartup(bool enabled)
-    {
-        if (!OperatingSystem.IsWindows())
-            return;
-
-        Microsoft.Win32.RegistryKey? autostart;
-
-        autostart = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
-            "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true
-        );
-
-        if (autostart == null) {
-            throw new Exception("Couldn't open autostart registry key.");
-        }
-
-        if (enabled)
-            autostart.SetValue(
-                "another-keyboard-layer",
-                $"\"{AppDomain.CurrentDomain.BaseDirectory}{AppDomain.CurrentDomain.FriendlyName}.exe\""
-            );
-        else
-            autostart.DeleteValue("another-keyboard-layer", false);
     }
 
 }

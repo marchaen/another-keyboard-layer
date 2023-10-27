@@ -22,20 +22,26 @@ liveReloadOption.Description =
 @"Reload another keyboard layer when the configuration file changes. Respects 
 overriding the default config path with the --config option.";
 
+var hideWindowOption = new Option<bool>("--hide-window");
+
+hideWindowOption.Description =
+@"Hides the console window this application was started in. Used for autostart.";
+
 // Command definition
 
 var command = new RootCommand("Run another keyboard layer from the terminal.")
 {
     configFileOption,
-    liveReloadOption
+    liveReloadOption,
+    hideWindowOption,
 };
 
 // Executing the command
 
 command.SetHandler(
-    (configFile, liveReload) =>
-        ApplicationBuilder.Build(configFile, liveReload).Run(),
-    configFileOption, liveReloadOption
+    (configFile, liveReload, hideWindow) =>
+        ApplicationBuilder.Build(configFile, liveReload, hideWindow).Run(),
+    configFileOption, liveReloadOption, hideWindowOption
 );
 
 command.Invoke(args);
