@@ -6,6 +6,14 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="./default-config.toml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PublishState>Included</PublishState>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
   
   <Target Name="BuildNativeLibrary" BeforeTargets="PrepareForBuild">
     <!-- Compile native lib for the current platform -->

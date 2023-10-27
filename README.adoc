@@ -231,5 +231,5 @@ Cli starten.
 .Standartkonfigurationsdatei mit Kommentaren
 [source, toml]
 ----
-include::default-config.toml[]
+include::AKL.Common/default-config.toml[]
 ----
