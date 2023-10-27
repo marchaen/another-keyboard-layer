@@ -190,3 +190,73 @@ impl EventProcessor {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::key::VirtualKey;
+
+    use super::*;
+
+    #[test]
+    fn test_event_processor() {
+        // Test that the event processor works exactly as visualized in the
+        // "Kern" section of the README.
+
+        // kc => KeyCombination
+        macro_rules! kc {
+            ($($key: expr $(,)?)*) => {
+                TryInto::<KeyCombination>::try_into([$(Into::<Key>::into($key)), *].as_slice())
+                    .expect("Static key combination should always be valid.")
+            };
+        }
+
+        let switch_key = Key::Virtual(VirtualKey::Space);
+        let default_combination = kc!(VirtualKey::Return);
+        let mappings = collections::HashMap::from([(kc!('t'), kc!('a'))]);
+
+        let mut event_processor: EventProcessor = {
+            let mut config = Configuration::default();
+
+            config.switch_key = Some(switch_key);
+            config.default_combination = Some(default_combination);
+            config.mappings = mappings;
+
+            config.into()
+        };
+
+        macro_rules! test_event {
+            ($action: expr, $key: expr, $change: expr) => {
+                assert_eq!(
+                    event_processor.process(Event {
+                        action: $action,
+                        key: $key.into()
+                    }),
+                    $change
+                );
+            };
+        }
+
+        test_event!(Action::Press, 'a', ChangeEventRequest::None);
+
+        test_event!(Action::Press, switch_key, ChangeEventRequest::Block);
+        test_event!(Action::Release, 'a', ChangeEventRequest::None);
+
+        test_event!(Action::Press, 'a', ChangeEventRequest::Block);
+        test_event!(Action::Release, 'a', ChangeEventRequest::Block);
+
+        test_event!(
+            Action::Release,
+            switch_key,
+            ChangeEventRequest::ReplaceWith(default_combination)
+        );
+
+        test_event!(Action::Press, switch_key, ChangeEventRequest::Block);
+
+        test_event!(
+            Action::Press,
+            't',
+            ChangeEventRequest::ReplaceWith(kc!('a'))
+        );
+
+        test_event!(Action::Release, switch_key, ChangeEventRequest::Block);
+    }
+}
