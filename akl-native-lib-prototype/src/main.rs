@@ -12,8 +12,9 @@ use windows::Win32::{
     },
 };
 
-// TODO: Make sure the drop method / unregister is called even when the console
-// is closed unnaturally
+// TODO: Make sure that the handle / hook is unregistered in the real
+// applications (cli und gui), dafür kann ich dann in c# folgendes verwenden:
+// https://learn.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-7.0&redirectedfrom=MSDN
 struct Handle(HHOOK);
 
 impl Drop for Handle {
