@@ -1,15 +1,27 @@
 = Another Keyboard Layer
 :nofooter:
 :toc: preamble
-:toc-title: Inhaltsverzeichnis
-:note-caption: Anmerkung
+:imagesdir: assets
 :experimental:
 ifdef::commit-hash[]
 :revdate: {docdatetime}
 :revremark: Commit: {commit-hash}
 endif::[]
+// Translations
+:toc-title: Inhaltsverzeichnis
+:note-caption: Anmerkung
 
-// Generate with "asciidoctor -acommit-hash=$(git rev-parse --short HEAD) README.adoc"
+////
+Generate documentation with rendered diagrams by executing
+
+    ./build-documentation.sh
+
+An installation of the ruby version of asciidoctor with the diagram extension
+is required:
+
+- https://docs.asciidoctor.org/asciidoctor/latest/install/ruby-packaging/
+- https://docs.asciidoctor.org/diagram-extension/latest/#installation
+////
 
 Programm das einen weiteren Tastaturlayer emuliert.
 
@@ -66,3 +78,36 @@ verwendet werden.
 NOTE: Die Konfiguration soll im https://en.wikipedia.org/wiki/TOML[TOML] format
 gespeichert werden und in C# mit https://github.com/xoofx/Tomlyn[Tomlyn]
 verarbeitet werden.
+
+=== Überblick über die Beziehungen der Komponenten
+
+[plantuml, target="components-overview", fromat=svg]
+....
+@startuml
+!theme reddress-darkblue
+
+component "Core Library (""akl-core-system-library"")" as core
+component "Main User Interface (""AKL.Gui"")" as gui
+component "Basic Cli Wrapper (""AKL.Cli"")" as cli
+
+note left of core
+    Implements the
+    configurable
+    virtual layer.
+end note
+
+node "Operating System" {
+    interface "Raw keyboard events" as keyboard
+
+    note bottom of keyboard
+        Implementation
+        is os dependent.
+    end note
+}
+
+gui --> core : configures and starts
+cli --> core : only starts
+core --> keyboard : interacts with
+
+@enduml
+....
