@@ -106,6 +106,9 @@ public class AklConfigurationProvider
     /// </summary>
     public void SaveToFile()
     {
+        if (this.file.Directory is DirectoryInfo parent)
+            Directory.CreateDirectory(parent.FullName);
+
         File.WriteAllText(this.file.FullName, this.configuration.ToString());
     }
 
