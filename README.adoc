@@ -1,10 +1,17 @@
-= another keyboard layer
+= Another Keyboard Layer
 :nofooter:
+:experimental:
 ifdef::commit-hash[]
 :revdate: {docdatetime}
 :revremark: Commit: {commit-hash}
 endif::[]
 
 // Generate with "asciidoctor -acommit-hash=$(git rev-parse --short HEAD) README.adoc"
+
+Programm das einen weiteren Tastaturlayer emuliert.
+
+Auf diesen virtuellen Layer können schwer zu erreichende Tasten oder 
+komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit 
+einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden.
 
 // TODO: Informationen über Komponenten, Features, Verwendete Bibliotheken, etc.
