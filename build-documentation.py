@@ -33,6 +33,11 @@ subprocess.run([
 ])
 
 subprocess.run(
-    "cargo doc --no-deps --document-private-items", shell=True,
-    stderr=subprocess.DEVNULL, cwd="akl-core-system-lib"
+    "cargo doc --no-deps --document-private-items --target x86_64-pc-windows-gnu", 
+    shell=True, stderr=subprocess.DEVNULL, cwd="akl-core-system-lib"
+)
+
+subprocess.run(
+    "cargo doc --no-deps --document-private-items --target x86_64-unknown-linux-gnu", 
+    shell=True, stderr=subprocess.DEVNULL, cwd="akl-core-system-lib"
 )
