@@ -4,7 +4,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-def generate_main_documentation():
+def generate_main_documentation(out_dir: Path):
     asciidoctor = shutil.which("asciidoctor")
 
     if asciidoctor is None:
@@ -28,7 +28,7 @@ def generate_main_documentation():
 
     subprocess.run([
         asciidoctor, "-b", "manpage", "-acommit-hash=" + git_commit, 
-        "--destination-dir", out_dir, "Manpage.adoc"
+        "--destination-dir", out_dir.joinpath("man", "man1"), "Manpage.adoc"
     ])
 
 def generate_library_documentation():
@@ -49,5 +49,5 @@ if out_dir.exists():
 
 out_dir.mkdir()
 
-generate_main_documentation()
+generate_main_documentation(out_dir)
 generate_library_documentation()

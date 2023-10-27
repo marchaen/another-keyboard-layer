@@ -223,6 +223,56 @@ verwendet werden.
 
 include::Manpage.adoc[tags=cli-options]
 
+==== Visualisierung
+
+[plantuml, target="cli-program-flow", format=svg]
+....
+@startuml
+!theme reddress-darkblue
+
+start
+
+:Parse cli arguments;
+
+if (Config path overriden?) then (yes)
+    :Use custom config path;
+else (no)
+    :Use default config path;
+endif
+
+if (Config file exists?) then (no)
+    if (Custom path set?) then (yes)
+        :Print error message>
+        :Exit program early;
+        detach
+    else (no)
+        :Save default configuration;
+    endif
+else (yes)
+endif
+
+:Load configuration file;
+
+if (Parsing config sucessfull?) then (no)
+    :Print error message with cause>
+    :Exit program early;
+    detach
+else (yes)
+    if (Live reload activated?) then (yes)
+        :Start file watcher in background thread;
+        :Create callback for updating the virtual layer;
+    else (no)
+    endif
+
+    :Start virtual layer;
+    :Block until receiving Ctrl + C;
+endif
+
+stop
+
+@enduml
+....
+
 === Gemeinsame Funktionalität von Gui und Cli (`AKL.Common`)
 
 Dieses Modul sollte das Parsen und Schreiben der Konfigurationsdatei als auch
