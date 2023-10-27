@@ -96,6 +96,9 @@ public class Autostart
     /// <summary>
     ///     Calls <see cref="Enable()"/> if the enabled parameter is <c>true</c>
     ///     and otherwise <see cref="Disable()"/>.
+    ///
+    ///     Note: This method could throw if the autostart registry key doesn't
+    ///     exist or the user doesn't have permission to write to the registry.
     /// </summary>
     /// <param name="enabled">Enable or disable autostart for this app.</param>
     [SupportedOSPlatform("windows")]
@@ -110,6 +113,9 @@ public class Autostart
     /// <summary>
     ///     Enables autostart for this app by setting a specific value in the
     ///     registry to <see cref="this.command"/>.
+    ///
+    ///     Note: This method could throw if the autostart registry key doesn't
+    ///     exist or the user doesn't have permission to write to the registry.
     /// </summary>
     /// <seealso cref="OpenRegistry()"/>
     [SupportedOSPlatform("windows")]
@@ -121,6 +127,9 @@ public class Autostart
     /// <summary>
     ///     Disables autostart for this app by deleting a specific value in the
     ///     registry.
+    ///
+    ///     Note: This method could throw if the autostart registry key doesn't
+    ///     exist or the user doesn't have permission to write to the registry.
     /// </summary>
     /// <seealso cref="OpenRegistry()"/>
     [SupportedOSPlatform("windows")]

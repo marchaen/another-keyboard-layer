@@ -16,7 +16,6 @@ public unsafe class VirtualLayer
     public AklConfiguration Configuration { get; set; }
 
     private AklContext* akl;
-    private Autostart autostart;
 
     /// <summary>
     ///     Initializes the akl context associated with this virtual layer call
@@ -33,12 +32,7 @@ public unsafe class VirtualLayer
     public VirtualLayer(AklConfiguration configuration)
     {
         Configuration = configuration;
-
         akl = AklCoreNativeInterface.init();
-        autostart = Autostart.WithAppName("another-keyboard-layer")
-            .WithCmdArguments("--hide-window")
-            .Build();
-
         AppDomain.CurrentDomain.ProcessExit += (_, _) => this.Destroy();
     }
 
@@ -52,9 +46,6 @@ public unsafe class VirtualLayer
             return;
 
         Stop();
-
-        if (OperatingSystem.IsWindows())
-            autostart.SetAutostart(Configuration.Autostart);
 
         AklCoreNativeInterface.set_switch_key(akl, Configuration.SwitchKey.ToFfi());
 

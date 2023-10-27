@@ -10,12 +10,16 @@ public class Application
 {
 
     private readonly VirtualLayer virtualLayer;
+    private readonly Autostart autostart;
     private readonly FileSystemWatcher? watcher;
 
     private DateTime lastChange = DateTime.MinValue;
 
     public Application(AklConfiguration configuration, FileSystemWatcher? watcher)
     {
+        this.autostart = Autostart.WithAppName("another-keyboard-layer")
+            .WithCmdArguments("--hide-window")
+            .Build();
         this.watcher = watcher;
 
         if (watcher != null)
@@ -59,6 +63,7 @@ public class Application
 
                 virtualLayer.Configuration = newConfiguration;
                 virtualLayer.Update();
+                UpdateAutostart();
                 ColorPrinter.WriteSuccessful("Reload successful.");
                 break;
             }
@@ -67,6 +72,21 @@ public class Application
                 ColorPrinter.WriteError("File locked");
                 Thread.Sleep(100);
             }
+        }
+    }
+
+    private void UpdateAutostart()
+    {
+        if (!OperatingSystem.IsWindows())
+            return;
+
+        try
+        {
+            autostart.SetAutostart(this.virtualLayer.Configuration.Autostart);
+        }
+        catch (Exception exception)
+        {
+            ColorPrinter.WriteError("Couldn't update autostart settings: " + exception.Message);
         }
     }
 
@@ -82,6 +102,7 @@ public class Application
         }
 
         virtualLayer.Update();
+        UpdateAutostart();
         Console.WriteLine("Quit with Ctrl + C");
 
         while (true)
