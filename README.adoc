@@ -560,7 +560,7 @@ das wichtigste Feature für die Linux-Version gewesen wäre.
 - https://www.rust-lang.org/tools/install[Rustlang]
 - https://github.com/cross-rs/cross[cross (Easy cross-platform rust builds)]
 
-=== Dokumentation
+=== Generelle Dokumentation
 
 Je nach Präferenz kann Dokumentation lokal oder auch mit
 https://www.docker.com/[Docker] generiert werden. Die folgenden Befehle
@@ -575,6 +575,17 @@ $ ./build-documentation.py
 .Mit Docker
 [source, console]
 $ ./build-documentation.py with-docker
+
+=== akl-core-system-lib Dokumentation
+
+Die Dokumentation für die `akl-core-system-lib` kann mit folgenden Befehl
+generiert werden.
+
+[source, console]
+$ cargo doc --document-private-items --no-deps --target x86_64-pc-windows-gnu
+
+.Anforderungen
+- https://www.rust-lang.org/tools/install[Rustlang mit dem x86_64-pc-windows-gnu target]
 
 ==== Anforderungen
 
