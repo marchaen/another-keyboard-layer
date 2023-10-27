@@ -29,7 +29,7 @@
       Command="cargo build --release --target x86_64-pc-windows-gnu"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
     <Exec Condition="$(Configuration) == 'Release' And $([MSBuild]::IsOSPlatform('Windows'))"
-      Command="cargo build --release --target x86_64-pc-unknown-linux-gnu"
+      Command="cargo build --release --target x86_64-unknown-linux-gnu"
       WorkingDirectory="$(MSBuildProjectDirectory)/../akl-core-system-lib" /> 
 
     <!-- Copy generated bindings from the native lib -->
