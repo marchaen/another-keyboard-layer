@@ -17,6 +17,9 @@ switch-key="CapsLock"
 # without invoking any mappings.
 default-simulation-combination="Escape"
 
+# Autostart with the operating system
+start-with-system = false
+
 # All mappings are defined as "target key combination" and "replacement key
 # combination" (The details about key combinations can be found at the top).
 #

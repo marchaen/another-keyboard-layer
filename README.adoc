@@ -40,6 +40,7 @@ einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden.
 Layer gedruckt wurde.
 - Sprachunabhängige Implementation der Tastenwerte
 - Textbasierte und auch graphische Konfigurationsmöglichkeiten
+- Konfigurierbares Starten mit dem System
 
 == Komponenten
 
@@ -84,6 +85,9 @@ verwendet werden.
 Dieses Modul sollte das Parsen und Schreiben der Konfigurationsdatei als auch
 die Interaktion mit `akl-core-system-lib` übernehmen, damit keine Logik
 unnötigerweise dupliziert wird.
+
+Nachdem Verarbeiten der Konfiguration sollten die Einstellungen falls nötig 
+automatisch angewendet werden z. b. Autostart An / Aus.
 
 NOTE: Die Konfiguration soll im https://en.wikipedia.org/wiki/TOML[TOML] format
 gespeichert werden und in C# mit https://github.com/xoofx/Tomlyn[Tomlyn]
