@@ -210,6 +210,37 @@ Framework, welches von der Struktur sehr stark
 https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-wpf?view=vs-2022#what-is-wpf[WPF]
 ähnelt.
 
+==== Mockup
+
+[plantuml, target="gui-mockup", format=svg]
+....
+@startsalt
+!theme reddress-darkblue
+scale 2
+
+{
+    [X] Start with System
+    Switch Key          | "CapsLock       "
+    Default Combination | "Escape         "
+    .
+    {SI
+        {#
+            **Target**        | **Replacement**
+            "h"               | "ArrowLeft"
+            "j"               | "ArrowDown"
+            "k"               | "ArrowUp"
+            "l"               | "ArrowRight"
+            "               " | "               "
+        }
+    }
+    [ <&plus> Add mapping ]
+    .
+    [ <&reload> Restart Virtual Layer ] | [ <&hard-drive> Save configuration ]
+}
+
+@endsalt
+....
+
 === Textbasierte Benutzerschnittstelle (`AKL.Cli`)
 
 Zusätzlich zur graphischen Schnittstelle soll die textbasierte
