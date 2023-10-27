@@ -22,6 +22,20 @@ endif::[]
 :nofooter:
 :experimental:
 :imagesdir: assets
+// Detect if currently rendering on any git host environment
+// GitLab
+ifdef::env-gitlab[]
+:git-host: GitLab
+endif::env-gitlab[]
+// GitHub
+ifdef::env-github[]
+:git-host: GitHub
+endif::env-github[]
+// Deactivates webfonts since the viewer doesn't necessarily have an internet
+// connection unless the document is rendered on a git host.
+ifndef::git-host[]
+:!webfonts:
+endif::git-host[]
 
 ////
 Generate documentation with rendered diagrams by executing the following script.
@@ -50,14 +64,6 @@ Auf diesen virtuellen Layer können schwer zu erreichende Tasten oder
 komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit
 einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden, während
 diese gehalten wird. Siehe <<_features>> für mehr Details.
-
-ifdef::env-gitlab[]
-:git-host: GitLab
-endif::env-gitlab[]
-
-ifdef::env-github[]
-:git-host: GitHub
-endif::env-github[]
 
 ifdef::git-host[]
 NOTE: Leider funktioniert die Anzeige von AsciiDoc-Dokumenten in **{git-host}**
