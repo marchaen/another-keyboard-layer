@@ -20,3 +20,7 @@ fi
 
 # Generate documentation
 asciidoctor -r asciidoctor-diagram -acommit-hash=$(git rev-parse --short HEAD) --destination-dir $out_dir README.adoc
+
+# Generate rust lib documentation
+cd akl-core-system-lib
+cargo doc --no-deps --document-private-items
