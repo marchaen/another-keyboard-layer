@@ -23,6 +23,8 @@ fn debug(line: &str) {
     let mut line = line.to_owned();
     line.push('\n');
 
+    // Safety: The program and all hooks that are using debug are running in the
+    // same thread and thus there won't be two mutable references to the server.
     unsafe {
         DEBUGGER
             .as_mut()
@@ -50,7 +52,7 @@ fn main() {
 }
 
 // TODO: Make sure that the handle / hook is unregistered in the real
-// applications (cli und gui), dafür kann ich dann in c# folgendes verwenden:
+// applications (cli und gui), following can be used to do that
 // https://learn.microsoft.com/en-us/dotnet/api/system.appdomain.processexit?view=net-7.0&redirectedfrom=MSDN
 struct KeyboardHookHandle(HHOOK);
 
