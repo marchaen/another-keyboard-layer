@@ -1,20 +1,33 @@
-﻿using AKL.Common;
+﻿using System.CommandLine;
 
-Console.WriteLine("Start virtual layer...");
+var configFileOption = new Option<FileInfo?>("--config");
+configFileOption.AddAlias("-c");
 
-// See verbatim text: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/tokens/verbatim
-var raw_config = @"
-switch_key = ""CapsLock""
-start_with_system = false
-default_simulation_combination = """"
-[mappings]
-""a""=""o""
-";
+configFileOption.Description =
+@"Explicitly specify a configuration file to load. The program will exit with a
+non zero code if the file doesn't exist.
 
-var configuration = AklConfiguration.FromString(raw_config);
+By default the configuration file will be stored at
+$XDG_CONFIG_HOME/another-keyboard-layer.toml. If $XDG_CONFIG_HOME is not set
+$HOME/.config is used instead.";
 
-var virtualLayer = new VirtualLayer(configuration);
-virtualLayer.Update();
+var liveReloadOption = new Option<bool>(name: "--live-reload");
+liveReloadOption.AddAlias("-l");
 
-Console.ReadKey();
-Console.WriteLine("Stopped.");
+liveReloadOption.Description =
+@"Reload another keyboard layer when the configuration file changes. Respects 
+overriding the default config path with the --config option.";
+
+var command = new RootCommand("run another keyboard layer from the terminal")
+{
+    configFileOption,
+    liveReloadOption
+};
+
+command.SetHandler(
+    (configFile, liveReload) =>
+        Console.WriteLine("TODO: Write application wrapper"),
+    configFileOption, liveReloadOption
+);
+
+command.Invoke(args);
