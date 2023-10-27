@@ -41,7 +41,7 @@ enum ResponseAction {
 }
 
 /// Processes events according to the algorithm visualized in the **README**.
-struct EventProcessor {
+pub struct EventProcessor {
     switch_key: Key,
     default_combination: Option<KeyCombination>,
     mappings: collections::HashMap<KeyCombination, KeyCombination>,

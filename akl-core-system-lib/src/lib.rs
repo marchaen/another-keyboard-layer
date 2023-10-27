@@ -20,15 +20,15 @@
 
 mod event;
 mod ffi;
-mod handle;
 mod key;
+mod keyboard_hook;
 
 use std::collections;
 
 use thiserror::Error;
 
-use handle::AklHandle;
 use key::{Key, KeyCombination};
+use keyboard_hook::Handle as KeyboardHookHandle;
 
 /// Represents any errors that can occur while interacting with the virtual
 /// layer.
@@ -60,7 +60,7 @@ pub struct Configuration {
 /// specific virtual layer.
 pub struct AnotherKeyboardLayer {
     pub configuration: Configuration,
-    handle: Option<AklHandle>,
+    keyboard_hook_handle: Option<KeyboardHookHandle>,
 }
 
 impl AnotherKeyboardLayer {
@@ -97,7 +97,7 @@ impl AnotherKeyboardLayer {
 
         Self {
             configuration: Default::default(),
-            handle: Default::default(),
+            keyboard_hook_handle: Default::default(),
         }
     }
 
@@ -112,7 +112,7 @@ impl AnotherKeyboardLayer {
     /// Checks if the native platform specific virtual layer is running.
     #[must_use]
     pub fn is_running(&self) -> bool {
-        matches!(self.handle, Some(_))
+        matches!(self.keyboard_hook_handle, Some(_))
     }
 
     /// Starts the native virtual layer with a copy of the configuration.
@@ -132,9 +132,10 @@ impl AnotherKeyboardLayer {
             return Err(AklError::AlreadyRunning);
         }
 
-        let mut handle = AklHandle::new(self.configuration.clone());
-        handle.register();
-        self.handle = Some(handle);
+        // Configuration is valid so .into() won't panic.
+        self.keyboard_hook_handle = Some(KeyboardHookHandle::register(
+            self.configuration.clone().into(),
+        ));
 
         Ok(())
     }
@@ -150,10 +151,8 @@ impl AnotherKeyboardLayer {
             return Err(AklError::AlreadyStopped);
         }
 
-        // Handle can't be none when self.is_running returns true because the
-        // implementation is just checking that handle is Some(_).
-        let mut handle = self.handle.take().unwrap();
-        handle.unregister();
+        let handle = self.keyboard_hook_handle.take();
+        drop(handle);
 
         Ok(())
     }
