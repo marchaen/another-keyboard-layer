@@ -1,5 +1,7 @@
 #![allow(non_upper_case_globals)]
 
+use std::hash::Hash;
+
 use num_enum::TryFromPrimitive;
 use thiserror::Error;
 
@@ -32,7 +34,7 @@ impl From<VirtualKey> for Key {
 /// (`self.4` can't be `Some(key)` if `self.3` is `None`). This requirement
 /// can't be represented with the type system and has to be manually checked for
 /// at every place where a `KeyCombination` is created instead.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialOrd, Ord)]
 pub struct KeyCombination(Key, Option<Key>, Option<Key>, Option<Key>);
 
 #[derive(Error, Debug)]
@@ -41,6 +43,24 @@ pub enum KeyCombinationConversionError {
     NotEnoughKeys,
     #[error("A key combination can be made of maximum four keys.")]
     TooManyKeys,
+}
+
+impl KeyCombination {
+    fn count_keys(&self) -> u8 {
+        if self.1.is_some() {
+            return 2;
+        }
+
+        if self.2.is_some() {
+            return 3;
+        }
+
+        if self.3.is_some() {
+            return 4;
+        }
+
+        return 1;
+    }
 }
 
 impl TryFrom<&[Option<Key>]> for KeyCombination {
@@ -69,6 +89,35 @@ impl TryFrom<&[Option<Key>]> for KeyCombination {
         ))
     }
 }
+
+impl From<&KeyCombination> for [Option<Key>; 4] {
+    fn from(value: &KeyCombination) -> Self {
+        [Some(value.0), value.1, value.2, value.3]
+    }
+}
+
+impl Hash for KeyCombination {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        let mut keys: [Option<Key>; 4] = self.into();
+        keys.sort();
+        keys.into_iter().for_each(|key| key.hash(state));
+    }
+}
+
+impl PartialEq for KeyCombination {
+    fn eq(&self, other: &Self) -> bool {
+        if self.count_keys() != other.count_keys() {
+            return false;
+        }
+
+        let self_slice: [Option<Key>; 4] = self.into();
+        let other_slice: [Option<Key>; 4] = other.into();
+
+        self_slice.iter().all(|key| other_slice.contains(key))
+    }
+}
+
+impl Eq for KeyCombination {}
 
 macro_rules! define_virtual_key_codes {
     ($($name: ident = $windows_translation: expr),*,) => {
