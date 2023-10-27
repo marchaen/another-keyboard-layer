@@ -1,320 +1,171 @@
-use windows::Win32::UI::{
-    Input::KeyboardAndMouse::{GetKeyboardLayout, GetKeyboardState, ToUnicodeEx, VIRTUAL_KEY},
-    WindowsAndMessaging::KBDLLHOOKSTRUCT,
-};
+#[cfg(target_os = "windows")]
+use windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY;
 
-pub fn translate_to_character(event: &KBDLLHOOKSTRUCT) -> Option<char> {
-    let mut keyboard_state = [0u8; 256];
+#[cfg(not(target_os = "windows"))]
+use xkeysym::Keysym as X11Key;
 
-    // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeyboardstate
-    let state_retrieval_result = unsafe { GetKeyboardState(&mut keyboard_state) };
+macro_rules! virtual_key_code_to_virtual_key_translations {
+    ($($name: ident: win = $windows_translation: expr, x11 = $($x11_translation: ident $(|)?)+),*,) => {
+        #[allow(missing_docs)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+        #[repr(u8)]
+        pub enum VirtualKey {
+            $($name),*
+        }
 
-    // Getting the state failed and thus translating the event is impossible.
-    if state_retrieval_result.0 == 0 {
-        return None;
-    }
-
-    // Retrieving the keyboard layout takes on average four micro seconds on a
-    // relatively low powered device so even though the documentation talks
-    // about caching this information that just currently isn't worth it.
-    // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeyboardlayout
-    let keyboard_layout = unsafe { GetKeyboardLayout(0) };
-
-    // The documentation doesn't specify how many characters can be returned max
-    // for one key event. When more than one characters translated successfully
-    // the first one will be returned.
-    let mut raw_character = [0u16; 8];
-
-    // Setting the third bit of the flags value makes sure to keep the keyboard
-    // state as is. Not doing this breaks the dead characters (^, `, ´).
-    let flags = 0b100;
-
-    // See https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-tounicodeex
-    let translation_result = unsafe {
-        ToUnicodeEx(
-            event.vkCode,
-            event.scanCode,
-            &keyboard_state,
-            &mut raw_character,
-            flags,
-            keyboard_layout,
-        )
-    };
-
-    if translation_result == 0 {
-        return None;
-    }
-
-    let char_count = translation_result.unsigned_abs() as usize;
-    char::decode_utf16(raw_character[..char_count].iter().copied()).find_map(Result::ok)
-}
-
-pub fn windows_to_virtual_key(windows_key: u16) -> Option<VirtualKey> {
-    VIRTUAL_KEY(windows_key).try_into().ok()
-}
-
-// TODO: Add this impl block to the current implementation of the library
-impl VirtualKey {
-    #[cfg(target_os = "windows")]
-    pub fn to_windows_key(self) -> u16 {
-        Into::<windows::Win32::UI::Input::KeyboardAndMouse::VIRTUAL_KEY>::into(self).0
-    }
-}
-
-macro_rules! windows_virtual_key_code_to_virtual_key_translations {
-    ($($name: ident = $translation: expr),*,) => {
         impl TryFrom<&str> for VirtualKey {
             type Error = ();
 
-            fn try_from(value: &str) -> Result<Self, Self::Error> {
-                match value {
+            fn try_from(name: &str) -> Result<Self, Self::Error> {
+                match name {
                     $(stringify!($name) => Ok(VirtualKey::$name),)*
                     _ => Err(())
                 }
             }
         }
 
+        #[cfg(target_os = "windows")]
         impl TryFrom<VIRTUAL_KEY> for VirtualKey {
             type Error = ();
 
             fn try_from(windows_key: VIRTUAL_KEY) -> Result<Self, Self::Error> {
                 match windows_key.0 {
-                    $($translation => Ok(VirtualKey::$name),)*
+                    $($windows_translation => Ok(VirtualKey::$name),)*
                     _ => Err(()),
                 }
             }
         }
 
+        #[cfg(target_os = "windows")]
         impl From<VirtualKey> for VIRTUAL_KEY {
             fn from(virtual_key: VirtualKey) -> Self {
                 match virtual_key {
-                    $(VirtualKey::$name => VIRTUAL_KEY($translation),)*
+                    $(VirtualKey::$name => VIRTUAL_KEY($windows_translation),)*
+                }
+            }
+        }
+
+        #[cfg(target_os = "windows")]
+        impl VirtualKey {
+            pub fn to_windows_key(self) -> u16 {
+                Into::<VIRTUAL_KEY>::into(self).0
+            }
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        impl TryFrom<X11Key> for VirtualKey {
+            type Error = ();
+
+            fn try_from(x11_key: X11Key) -> Result<Self, Self::Error> {
+                match x11_key {
+                    $($(X11Key::$x11_translation => Ok(VirtualKey::$name)),*),*,
+                    _ => Err(())
+                }
+            }
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        impl From<VirtualKey> for X11Key {
+            fn from(virtual_key: VirtualKey) -> Self {
+                match virtual_key {
+                    $(VirtualKey::$name => [$(X11Key::$x11_translation),*][0]),*
                 }
             }
         }
     };
 }
 
-// See https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-windows_virtual_key_code_to_virtual_key_translations!(
-    Back = 0x08,
-    Tab = 0x09,
-    Clear = 0x0c,
-    Return = 0x0d,
-    Pause = 0x13,
-    CapsLock = 0x14,
-    KanaOrHangul = 0x15,
-    ImeOn = 0x16,
-    Junja = 0x17,
-    Final = 0x18,
-    KanjiOrHanja = 0x19,
-    ImeOff = 0x1a,
-    Escape = 0x1b,
-    ImeConvert = 0x1c,
-    ImeNonconvert = 0x1d,
-    ImeAccept = 0x1e,
-    ImeModechange = 0x1f,
-    Space = 0x20,
-    PageUp = 0x21,
-    PageDown = 0x22,
-    End = 0x23,
-    Home = 0x24,
-    LeftArrow = 0x25,
-    UpArrow = 0x26,
-    RightArrow = 0x27,
-    DownArrow = 0x28,
-    Select = 0x29,
-    Print = 0x2a,
-    Execute = 0x2b,
-    PrintScreen = 0x2c,
-    Insert = 0x2d,
-    Delete = 0x2e,
-    Help = 0x2f,
-    LMeta = 0x5b,
-    RMeta = 0x5c,
-    Apps = 0x5d,
-    Sleep = 0x5f,
-    Numpad0 = 0x60,
-    Numpad1 = 0x61,
-    Numpad2 = 0x62,
-    Numpad3 = 0x63,
-    Numpad4 = 0x64,
-    Numpad5 = 0x65,
-    Numpad6 = 0x66,
-    Numpad7 = 0x67,
-    Numpad8 = 0x68,
-    Numpad9 = 0x69,
-    Multiply = 0x6a,
-    Add = 0x6b,
-    Separator = 0x6c,
-    Subtract = 0x6d,
-    Decimal = 0x6e,
-    Divide = 0x6f,
-    F1 = 0x70,
-    F2 = 0x71,
-    F3 = 0x72,
-    F4 = 0x73,
-    F5 = 0x74,
-    F6 = 0x75,
-    F7 = 0x76,
-    F8 = 0x77,
-    F9 = 0x78,
-    F10 = 0x79,
-    F11 = 0x7A,
-    F12 = 0x7B,
-    F13 = 0x7C,
-    F14 = 0x7D,
-    F15 = 0x7E,
-    F16 = 0x7F,
-    F17 = 0x80,
-    F18 = 0x81,
-    F19 = 0x82,
-    F20 = 0x83,
-    F21 = 0x84,
-    F22 = 0x85,
-    F23 = 0x86,
-    F24 = 0x87,
-    Numlock = 0x90,
-    Scroll = 0x91,
-    LShift = 0xa0,
-    RShift = 0xa1,
-    LControl = 0xa2,
-    RControl = 0xa3,
-    LAlt = 0xa4,
-    RAlt = 0xa5,
-    BrowserBack = 0xa6,
-    BrowserForward = 0xa7,
-    BrowserRefresh = 0xa8,
-    BrowserStop = 0xa9,
-    BrowserSearch = 0xaa,
-    BrowserFavorites = 0xab,
-    BrowserHome = 0xac,
-    VolumeMute = 0xad,
-    VolumeDown = 0xae,
-    VolumeUp = 0xaf,
-    MediaNextTrack = 0xb0,
-    MediaPrevTrack = 0xb1,
-    MediaStop = 0xb2,
-    MediaPlayPause = 0xb3,
-    LaunchMail = 0xb4,
-    LaunchMediaSelect = 0xb5,
-    LaunchApp1 = 0xb6,
-    LaunchApp2 = 0xb7,
-    Processkey = 0xe5,
-    Play = 0xfa,
-    Zoom = 0xfb,
+virtual_key_code_to_virtual_key_translations!(
+    Back: win = 0x08, x11 = BackSpace,
+    Tab: win = 0x09, x11 = Tab | KP_Tab,
+    Clear: win = 0x0c, x11 = Clear,
+    Return: win = 0x0d, x11 = Return,
+    Pause: win = 0x13, x11 = Pause,
+    CapsLock: win = 0x14, x11 = Caps_Lock,
+    Escape: win = 0x1b, x11 = Escape,
+    Space: win = 0x20, x11 = space | KP_Space,
+    PageUp: win = 0x21, x11 = Page_Up | KP_Page_Up,
+    PageDown: win = 0x22, x11 = Page_Down | KP_Page_Down,
+    Home: win = 0x24, x11 = Home | KP_Home,
+    End: win = 0x23, x11 = End | KP_End,
+    LeftArrow: win = 0x25, x11 = Left | KP_Left,
+    UpArrow: win = 0x26, x11 = Up | KP_Up,
+    RightArrow: win = 0x27, x11 = Right | KP_Right,
+    DownArrow: win = 0x28, x11 = Down | KP_Down,
+    Select: win = 0x29, x11 = Select,
+    Print: win = 0x2a, x11 = Print,
+    Execute: win = 0x2b, x11 = Execute,
+    Insert: win = 0x2d, x11 = Insert | KP_Insert,
+    Delete: win = 0x2e, x11 = Delete | KP_Delete,
+    Help: win = 0x2f, x11 = Help,
+    LMeta: win = 0x5b, x11 = Meta_L,
+    RMeta: win = 0x5c, x11 = Meta_R,
+    Apps: win = 0x5d, x11 = Menu,
+    Sleep: win = 0x5f, x11 = XF86_Sleep,
+    Numpad0: win = 0x60, x11 = KP_0,
+    Numpad1: win = 0x61, x11 = KP_1,
+    Numpad2: win = 0x62, x11 = KP_2,
+    Numpad3: win = 0x63, x11 = KP_3,
+    Numpad4: win = 0x64, x11 = KP_4,
+    Numpad5: win = 0x65, x11 = KP_5,
+    Numpad6: win = 0x66, x11 = KP_6,
+    Numpad7: win = 0x67, x11 = KP_7,
+    Numpad8: win = 0x68, x11 = KP_8,
+    Numpad9: win = 0x69, x11 = KP_9,
+    Multiply: win = 0x6a, x11 = KP_Multiply,
+    Add: win = 0x6b, x11 = KP_Add,
+    Separator: win = 0x6c, x11 = KP_Separator,
+    Subtract: win = 0x6d, x11 = KP_Subtract,
+    Decimal: win = 0x6e, x11 = KP_Decimal,
+    Divide: win = 0x6f, x11 = KP_Divide,
+    F1: win = 0x70, x11 = F1 | KP_F1,
+    F2: win = 0x71, x11 = F2 | KP_F2,
+    F3: win = 0x72, x11 = F3 | KP_F3,
+    F4: win = 0x73, x11 = F4 | KP_F4,
+    F5: win = 0x74, x11 = F5,
+    F6: win = 0x75, x11 = F6,
+    F7: win = 0x76, x11 = F7,
+    F8: win = 0x77, x11 = F8,
+    F9: win = 0x78, x11 = F9,
+    F10: win = 0x79, x11 = F10,
+    F11: win = 0x7A, x11 = F11,
+    F12: win = 0x7B, x11 = F12,
+    F13: win = 0x7C, x11 = F13,
+    F14: win = 0x7D, x11 = F14,
+    F15: win = 0x7E, x11 = F15,
+    F16: win = 0x7F, x11 = F16,
+    F17: win = 0x80, x11 = F17,
+    F18: win = 0x81, x11 = F18,
+    F19: win = 0x82, x11 = F19,
+    F20: win = 0x83, x11 = F20,
+    F21: win = 0x84, x11 = F21,
+    F22: win = 0x85, x11 = F22,
+    F23: win = 0x86, x11 = F23,
+    F24: win = 0x87, x11 = F24,
+    Numlock: win = 0x90, x11 = Num_Lock,
+    Scroll: win = 0x91, x11 = Scroll_Lock,
+    LShift: win = 0xa0, x11 = Shift_L,
+    RShift: win = 0xa1, x11 = Shift_R,
+    LControl: win = 0xa2, x11 = Control_L,
+    RControl: win = 0xa3, x11 = Control_R,
+    LAlt: win = 0xa4, x11 = Alt_L,
+    RAlt: win = 0xa5, x11 = Alt_R,
+    BrowserBack: win = 0xa6, x11 = XF86_Back,
+    BrowserForward: win = 0xa7, x11 = XF86_Forward,
+    BrowserRefresh: win = 0xa8, x11 = XF86_Refresh,
+    BrowserStop: win = 0xa9, x11 = XF86_Stop,
+    BrowserSearch: win = 0xaa, x11 = XF86_Search,
+    BrowserFavorites: win = 0xab, x11 = XF86_Favorites,
+    BrowserHome: win = 0xac, x11 = XF86_HomePage,
+    VolumeMute: win = 0xad, x11 = XF86_AudioMute,
+    VolumeDown: win = 0xae, x11 = XF86_AudioLowerVolume,
+    VolumeUp: win = 0xaf, x11 = XF86_AudioRaiseVolume,
+    MediaNextTrack: win = 0xb0, x11 = XF86_AudioNext,
+    MediaPrevTrack: win = 0xb1, x11 = XF86_AudioPrev,
+    MediaStop: win = 0xb2, x11 = XF86_AudioStop,
+    MediaPlayPause: win = 0xb3, x11 = XF86_AudioPlay,
+    LaunchMail: win = 0xb4, x11 = XF86_Mail,
+    LaunchApp1: win = 0xb6, x11 = XF86_Launch1,
+    LaunchApp2: win = 0xb7, x11 = XF86_Launch2,
+    Play: win = 0xfa, x11 = XF86_AudioRandomPlay,
 );
-
-#[allow(missing_docs)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[repr(u8)]
-pub enum VirtualKey {
-    Back,
-    Tab,
-    Clear,
-    Return,
-    Pause,
-    CapsLock,
-    // Kana key on Japanese and Hangul key on Korean keyboards
-    KanaOrHangul,
-    ImeOn,
-    Junja,
-    Final,
-    // Kanji key on Japanese and Hanja key on Korean keyboards
-    KanjiOrHanja,
-    ImeOff,
-    Escape,
-    ImeConvert,
-    ImeNonconvert,
-    ImeAccept,
-    ImeModechange,
-    Space,
-    PageUp,
-    PageDown,
-    End,
-    Home,
-    LeftArrow,
-    UpArrow,
-    RightArrow,
-    DownArrow,
-    Select,
-    Print,
-    Execute,
-    PrintScreen,
-    Insert,
-    Delete,
-    Help,
-    LMeta,
-    RMeta,
-    Apps,
-    Sleep,
-    Numpad0,
-    Numpad1,
-    Numpad2,
-    Numpad3,
-    Numpad4,
-    Numpad5,
-    Numpad6,
-    Numpad7,
-    Numpad8,
-    Numpad9,
-    Multiply,
-    Add,
-    Separator,
-    Subtract,
-    Decimal,
-    Divide,
-    F1,
-    F2,
-    F3,
-    F4,
-    F5,
-    F6,
-    F7,
-    F8,
-    F9,
-    F10,
-    F11,
-    F12,
-    F13,
-    F14,
-    F15,
-    F16,
-    F17,
-    F18,
-    F19,
-    F20,
-    F21,
-    F22,
-    F23,
-    F24,
-    Numlock,
-    Scroll,
-    LShift,
-    RShift,
-    LControl,
-    RControl,
-    LAlt,
-    RAlt,
-    BrowserBack,
-    BrowserForward,
-    BrowserRefresh,
-    BrowserStop,
-    BrowserSearch,
-    BrowserFavorites,
-    BrowserHome,
-    VolumeMute,
-    VolumeDown,
-    VolumeUp,
-    MediaNextTrack,
-    MediaPrevTrack,
-    MediaStop,
-    MediaPlayPause,
-    LaunchMail,
-    LaunchMediaSelect,
-    LaunchApp1,
-    LaunchApp2,
-    Processkey,
-    Play,
-    Zoom,
-}

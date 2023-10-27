@@ -1,53 +1,28 @@
-#![cfg_attr(not(debug_assertions), allow(unused_imports, unused_variables))]
+use std::net::Ipv4Addr;
 
-use std::{io::Write, net::TcpStream, sync::Mutex};
+use log::LevelFilter;
+use simplelog::{ConfigBuilder, ThreadLogMode, WriteLogger};
 
-#[cfg(debug_assertions)]
-static mut DEBUGGER: Option<Debugger> = None;
+pub fn init(server: Ipv4Addr) {
+    let connection = std::net::TcpStream::connect((server, 7777));
 
-pub struct Debugger(#[cfg(debug_assertions)] Mutex<TcpStream>);
-
-impl Debugger {
-    pub fn init() {
-        #[cfg(debug_assertions)]
-        {
-            unsafe {
-                DEBUGGER = Some(Self(Mutex::new(
-                    TcpStream::connect("127.0.0.1:7777")
-                        .expect("Debug server should run for prototyping the native lib."),
-                )));
-            }
-
-            Self::write("Successfully connected.");
-        }
-    }
-
-    pub fn destroy() {
-        #[cfg(debug_assertions)]
-        {
-            Self::write("Ending connection.");
-            let _ = unsafe { DEBUGGER.take() };
-        }
-    }
-
-    pub fn write(line: &str) {
-        #[cfg(debug_assertions)]
-        {
-            let mut line = line.to_owned();
-            line.push('\n');
-
-            // Instead of messing with the rest of the program it's better to just
-            // not handle any errors that could have occurred while writing to the
-            // tcp stream.
-            let _ = unsafe {
-                DEBUGGER
-                    .as_mut()
-                    .expect("Connection to debug server should have been established.")
-                    .0
-                    .lock()
-                    .expect("No other thread will ever panic on this single write call.")
-                    .write(line.as_bytes())
+    match connection {
+        Ok(connection) => {
+            let config = {
+                match ConfigBuilder::new()
+                    .set_thread_level(LevelFilter::Error)
+                    .set_thread_mode(ThreadLogMode::Both)
+                    .set_target_level(LevelFilter::Error)
+                    .set_time_offset_to_local()
+                {
+                    Ok(config_builder) | Err(config_builder) => config_builder.build(),
+                }
             };
+
+            // Errors if the global logger is already initialized. Can be
+            // ignored safely without any consequences.
+            let _ = WriteLogger::init(LevelFilter::Trace, config, connection);
         }
+        Err(error) => eprintln!("Connection failed: {}", error.to_string()),
     }
 }

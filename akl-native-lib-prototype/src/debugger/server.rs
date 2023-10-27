@@ -5,10 +5,15 @@ use std::{
 };
 
 fn main() {
-    let listener = TcpListener::bind("127.0.0.1:7777")
+    let listener = TcpListener::bind("0.0.0.0:7777")
         .expect("Should be able to open debug server on port 7777.");
 
-    println!("Start listening for connections");
+    println!(
+        "Start listening for connections on {}",
+        listener
+            .local_addr()
+            .expect("Address should be getting returned when binding is successful.")
+    );
 
     for stream in listener.incoming() {
         match stream {

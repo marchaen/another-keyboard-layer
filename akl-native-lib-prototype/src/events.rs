@@ -1,6 +1,8 @@
 use std::{collections, hash::Hash};
 
-use crate::{debugger::Debugger, translation::VirtualKey};
+use log::info;
+
+use crate::translation::VirtualKey;
 
 // The key and key combination definition won't live in the events module
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -123,24 +125,17 @@ impl PartialEq for KeyCombination {
 
 impl Eq for KeyCombination {}
 
-// TODO: Add this implementation in the core library too
 impl TryFrom<&[Key]> for KeyCombination {
     type Error = ();
 
     fn try_from(raw_keys: &[Key]) -> Result<Self, Self::Error> {
         if raw_keys.len() > 4 {
-            // TOOD: Add an actual error type in the library for this
             return Err(());
         }
 
         if raw_keys.is_empty() {
-            // TOOD: Add an actual error type in the library for this
             return Err(());
         }
-
-        // Make sure to stop reading from key after finding a single non key
-        // option so that the assumption that there can't be any `Some` values
-        // after a `None` holds true.
 
         let second = raw_keys.get(1).copied();
 
@@ -193,7 +188,6 @@ pub struct EventProcessor {
 }
 
 impl EventProcessor {
-    // TODO: Create a From-Trait Implementation for AklConfiguration
     pub fn new(
         switch_key: Key,
         default_combination: Option<KeyCombination>,
@@ -224,7 +218,7 @@ impl EventProcessor {
 
                 self.currently_pressed.push(event.key);
 
-                Debugger::write(&format!("Currently pressed: {:?}", self.currently_pressed));
+                info!("Currently pressed: {:?}", self.currently_pressed);
 
                 let maybe_target_combination: Result<KeyCombination, _> =
                     self.currently_pressed.as_slice().try_into();

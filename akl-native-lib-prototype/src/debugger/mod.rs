@@ -1,3 +1,3 @@
 mod client;
 
-pub use client::Debugger;
+pub use client::init;
