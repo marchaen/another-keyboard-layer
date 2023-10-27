@@ -145,7 +145,7 @@ automatisch mit https://github.com/Cysharp/csbindgen[csbindgen] generiert werden
 [%breakable]
 === Überblick
 
-[plantuml, target="components-overview", format=svg]
+[plantuml, target="components-overview", format=svg, opts="inline"]
 ....
 @startuml
 !theme reddress-darkblue
@@ -202,7 +202,7 @@ Darstellung der Verarbeitung der Tastaturanschläge unabhängig vom
 Betriebssystem.
 
 .Strukturierung
-[plantuml, target="keyboard-input-event-abstraction", format=svg]
+[plantuml, target="keyboard-input-event-abstraction", format=svg, opts="inline"]
 ....
 @startuml
 !theme reddress-darkblue
@@ -262,7 +262,7 @@ NativeInputHook -- EventProcessor : uses to process events
 ....
 
 .Verarbeitung von Events
-[plantuml, target="keyboard-input-event-flow", format=svg]
+[plantuml, target="keyboard-input-event-flow", format=svg, opts="inline"]
 ....
 @startuml
 !theme reddress-darkblue
@@ -348,7 +348,7 @@ https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-wpf?v
 [%breakable]
 ==== Mockup
 
-[plantuml, target="gui-mockup", format=svg]
+[plantuml, target="gui-mockup", format=svg, opts="inline"]
 ....
 @startsalt
 !theme reddress-darkblue
@@ -393,7 +393,7 @@ include::Manpage.adoc[tags=cli-options]
 [%breakable]
 ==== Visualisierung
 
-[plantuml, target="cli-program-flow", format=svg]
+[plantuml, target="cli-program-flow", format=svg, opts="inline"]
 ....
 @startuml
 !theme reddress-darkblue
@@ -455,7 +455,7 @@ gespeichert werden und in C# mit https://github.com/xoofx/Tomlyn[Tomlyn]
 verarbeitet werden.
 
 .Definition der Api für Cli und Gui
-[plantuml, target="common-api-definition", format=svg]
+[plantuml, target="common-api-definition", format=svg, opts="inline"]
 ....
 @startuml
 !theme reddress-darkblue
