@@ -73,8 +73,15 @@ def generate_general_documentation(use_docker: bool, out_dir: Path):
         True
     )
 
+    akl_version = execute_command(
+        "Get akl version",
+        "git describe --tags --abbrev=0",
+        True
+    )
+
     base_command = (
         "{binary} -r asciidoctor-diagram -a commit-hash=" + git_commit +
+        " -a akl-version=" + akl_version +
         " --destination-dir {out_dir} {file}"
     )
 

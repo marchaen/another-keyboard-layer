@@ -4,6 +4,9 @@ ifdef::commit-hash[]
 :revdate: {docdatetime}
 :revremark: Commit: {commit-hash}
 endif::[]
+ifdef::akl-version[]
+:revnumber: {akl-version}
+endif::[]
 // Translations
 :toc-title: Inhaltsverzeichnis
 :note-caption: Anmerkung
