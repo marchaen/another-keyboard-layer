@@ -556,6 +556,8 @@ VirtualLayer *-- AklConfiguration : needs
 
 == Build Anweisungen
 
+=== Binaries
+
 Das Gui und die Cli können mit `dotnet publish -c Release` für die eigene 
 Platform gebaut werden. Wenn man die Option `--os **<OS>**` am Ende hinzufügt,
 kann man für die jeweils andere Platform bauen (gültige Werte sind `win` /
@@ -575,7 +577,8 @@ IMPORTANT: Support für Linux wurde eingestellt, weil es nicht möglich ist ohne
 Root-Berechtigung Keyboard-Events beliebig zu verändern / zu schicken und dass
 das wichtigste Feature für die Linux-Version gewesen wäre.
 
-.Anforderungen
+==== Anforderungen
+
 - https://dotnet.microsoft.com/en-us/download/dotnet/7.0[.NET 7.0 SDK]
 - https://www.rust-lang.org/tools/install[Rustlang]
 - https://github.com/cross-rs/cross[cross (Easy cross-platform rust builds)]
@@ -596,17 +599,6 @@ $ ./build-documentation.py
 [source, console]
 $ ./build-documentation.py with-docker
 
-=== akl-core-system-lib Dokumentation
-
-Die Dokumentation für die `akl-core-system-lib` kann mit folgenden Befehl
-generiert werden.
-
-[source, console]
-$ cargo doc --document-private-items --no-deps --target x86_64-pc-windows-gnu
-
-.Anforderungen
-- https://www.rust-lang.org/tools/install[Rustlang mit dem x86_64-pc-windows-gnu target]
-
 ==== Anforderungen
 
 Generell::
@@ -621,6 +613,18 @@ Lokal::
 Docker::
 - https://docs.docker.com/desktop/install/windows-install/[Docker (Windows)]
 - https://github.com/docker/docker-install[Docker (Linux)]
+
+=== akl-core-system-lib Dokumentation
+
+Die Dokumentation für die `akl-core-system-lib` kann mit folgenden Befehl
+generiert werden.
+
+[source, console]
+$ cargo doc --document-private-items --no-deps --target x86_64-pc-windows-gnu
+
+==== Anforderungen
+
+- https://www.rust-lang.org/tools/install[Rustlang mit dem x86_64-pc-windows-gnu target]
 
 == Konfigurationsdatei
 
