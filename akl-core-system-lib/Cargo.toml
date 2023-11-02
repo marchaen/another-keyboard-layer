@@ -1,7 +1,11 @@
 [package]
 name = "akl-core-system-lib"
-version = "0.1.0"
 edition = "2021"
+# This package is private and shouldn't be used on its own so setting a version
+# doesn't make any sense but the `version` field is required in cargo.
+# This is a workaround to this issue: https://github.com/rust-lang/cargo/issues/9829
+version = "0.0.0"
+publish = false
 
 [[bin]]
 name = "debug-server"
