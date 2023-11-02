@@ -129,7 +129,7 @@ automatisch neu zu starten, sobald manuelle Änderungen an der
 Konfigurationsdatei vorgenommen worden sind. Siehe Cli Optionen:
 <<_verfügbare_optionen_englisch>>
 
-=== Fortschritt
+== Fortschritt
 
 Allgemeiner Fortschritt des Projekts ohne die genauen Features direkt
 zu nennen, stattdessen wird die Fertigstellung der Komponenten betrachtet.
@@ -160,9 +160,7 @@ Interfacing mit Native Bibliotheken in C# besser gelernt werden.
 NOTE: Das Interfacing mit Rust ist sehr viel einfacher, da die Bindings für C#
 automatisch mit https://github.com/Cysharp/csbindgen[csbindgen] generiert werden.
 
-[%breakable]
-=== Überblick
-
+.Überblick
 [plantuml, target="components-overview", format=svg, opts="inline"]
 ....
 @startuml
@@ -363,9 +361,7 @@ Framework, welches von der Struktur sehr stark
 https://learn.microsoft.com/en-us/visualstudio/get-started/csharp/tutorial-wpf?view=vs-2022#what-is-wpf[WPF]
 ähnelt.
 
-[%breakable]
-==== Mockup
-
+.Mockup
 [plantuml, target="gui-mockup", format=svg, opts="inline"]
 ....
 @startsalt
@@ -409,7 +405,7 @@ verwendet werden.
 include::Manpage.adoc[tags=cli-options]
 
 [%breakable]
-==== Visualisierung
+==== Programmflow Visualisierung
 
 [plantuml, target="cli-program-flow", format=svg, opts="inline"]
 ....
@@ -577,6 +573,7 @@ IMPORTANT: Support für Linux wurde eingestellt, weil es nicht möglich ist ohne
 Root-Berechtigung Keyboard-Events beliebig zu verändern / zu schicken und dass
 das wichtigste Feature für die Linux-Version gewesen wäre.
 
+[discrete]
 ==== Anforderungen
 
 - https://dotnet.microsoft.com/en-us/download/dotnet/7.0[.NET 7.0 SDK]
@@ -599,6 +596,7 @@ $ ./build-documentation.py
 [source, console]
 $ ./build-documentation.py with-docker
 
+[discrete]
 ==== Anforderungen
 
 Generell::
@@ -622,6 +620,7 @@ generiert werden.
 [source, console]
 $ cargo doc --document-private-items --no-deps --target x86_64-pc-windows-gnu
 
+[discrete]
 ==== Anforderungen
 
 - https://www.rust-lang.org/tools/install[Rustlang mit dem x86_64-pc-windows-gnu target]
@@ -647,6 +646,7 @@ Sofern nicht ausdrücklich anderes angeben, wird jeder Beitrag der absichtlich
 für die Aufnahme in dieses Werk eingereicht wird, wie in der Apache-2.0-Lizenz
 definiert, ohne zusätzliche Bedingungen oder Konditionen wie oben lizenziert.
 
+[discrete]
 === Drittpartei Bibliotheken
 
 Diese Software verwendet die folgenden Bibliotheken unter Einhaltung der
