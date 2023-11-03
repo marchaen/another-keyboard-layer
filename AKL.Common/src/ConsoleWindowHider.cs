@@ -1,4 +1,4 @@
-namespace AKL.Cli;
+namespace AKL.Common;
 
 using System.Runtime.InteropServices;
 
