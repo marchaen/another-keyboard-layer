@@ -2,8 +2,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="575" d:DesignHeight="450"
         x:Class="AKL.Gui.MainWindow"
-        Title="AKL.Gui">
-    Welcome to AKL.Gui!
+        Title="AKL.Gui"
+        MinWidth="575"
+        MinHeight="450"
+        MaxWidth="575"
+        MaxHeight="450"
+        CanResize="False">
+    <StackPanel HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Margin="10" Spacing="10">
+            <ToggleButton>Activated | Deactivated (Depending on state)</ToggleButton>
+            <TextBlock VerticalAlignment="Center">Start with system</TextBlock>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+            Margin="10" Spacing="10">
+            <TextBlock VerticalAlignment="Center">Switch Key:</TextBlock>
+            <TextBox MinWidth="100" MaxWidth="140"/>
+            <TextBlock VerticalAlignment="Center">Default Combination:</TextBlock>
+            <TextBox MinWidth="100" MaxWidth="140"/>
+        </StackPanel>
+        <!-- Add bindings for the keycombination table ItemsSource="{Binding KeyCombinations}" -->
+        <DataGrid Margin="10" AutoGenerateColumns="True"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+            Margin="10" Spacing="10">
+            <!-- TOOD: Add icons to the buttons -->
+            <Button>Restart Virtual Layer</Button>
+            <Button>Save configuration</Button>
+        </StackPanel>
+    </StackPanel>
 </Window>
