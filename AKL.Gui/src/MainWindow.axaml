@@ -4,6 +4,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="575" d:DesignHeight="450"
         x:Class="AKL.Gui.MainWindow"
+        xmlns:vm="using:AKL.Gui"
+        x:DataType="vm:MainWindowViewModel"
         Title="AKL.Gui"
         MinWidth="575"
         MinHeight="450"
@@ -12,18 +14,25 @@
         CanResize="False">
     <StackPanel HorizontalAlignment="Center">
         <StackPanel Orientation="Horizontal" Margin="10" Spacing="10">
-            <ToggleButton>Activated | Deactivated (Depending on state)</ToggleButton>
+            <ToggleButton IsChecked="{Binding StartWithSystem}">
+                Activated | Deactivated (Depending on state)
+            </ToggleButton>
             <TextBlock VerticalAlignment="Center">Start with system</TextBlock>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
             Margin="10" Spacing="10">
             <TextBlock VerticalAlignment="Center">Switch Key:</TextBlock>
-            <TextBox MinWidth="100" MaxWidth="140"/>
+            <TextBox MinWidth="100" MaxWidth="140" Text="{Binding RawSwitchKey}"/>
             <TextBlock VerticalAlignment="Center">Default Combination:</TextBlock>
-            <TextBox MinWidth="100" MaxWidth="140"/>
+            <TextBox MinWidth="100" MaxWidth="140" Text="{Binding RawDefaultCombination}"/>
         </StackPanel>
-        <!-- Add bindings for the keycombination table ItemsSource="{Binding KeyCombinations}" -->
-        <DataGrid Margin="10" AutoGenerateColumns="True"/>
+        <DataGrid Margin="10" MinHeight="250" MaxHeight="250"
+            CanUserSortColumns="False" ItemsSource="{Binding RawKeyMappings}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Target"  Binding="{Binding RawTargetCombination}"/>
+                <DataGridTextColumn Header="Replacement" Binding="{Binding RawReplacementCombination}" />
+            </DataGrid.Columns>
+        </DataGrid>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
             Margin="10" Spacing="10">
             <!-- TOOD: Add icons to the buttons -->
