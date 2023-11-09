@@ -45,11 +45,14 @@
                 <DataGridTextColumn Header="Replacement" Binding="{Binding RawReplacementCombination}" />
             </DataGrid.Columns>
         </DataGrid>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
-            Margin="10" Spacing="10">
+        <Grid RowDefinitions="1*, auto, 2*" Margin="10">
+            <Button Grid.Column="0">Add Mapping</Button>
             <!-- TOOD: Add icons to the buttons -->
-            <Button>Restart Virtual Layer</Button>
-            <Button>Save configuration</Button>
-        </StackPanel>
+            <StackPanel Grid.Column="2" Spacing="10" Orientation="Horizontal"
+                HorizontalAlignment="Right">
+                <Button>Restart Virtual Layer</Button>
+                <Button>Save configuration</Button>
+            </StackPanel>
+        </Grid>
     </StackPanel>
 </Window>
