@@ -17,13 +17,18 @@
             <Setter Property="BorderBrush" Value="{DynamicResource TextControlBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
+
+        <Style Selector="ToggleButton">
+            <Setter Property="Content" Value="Deactivated"/>
+        </Style>
+        <Style Selector="ToggleButton:checked">
+            <Setter Property="Content" Value="Activated"/>
+        </Style>
     </Window.Styles>
     
     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10">
         <StackPanel Orientation="Horizontal" Margin="10" Spacing="10">
-            <ToggleButton IsChecked="{Binding StartWithSystem}">
-                Activated | Deactivated (Depending on state)
-            </ToggleButton>
+            <ToggleButton IsChecked="{Binding StartWithSystem}"/>
             <TextBlock VerticalAlignment="Center">Start with system</TextBlock>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
