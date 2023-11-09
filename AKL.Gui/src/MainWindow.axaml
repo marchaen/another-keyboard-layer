@@ -43,11 +43,22 @@
             <TextBox MinWidth="140" MaxWidth="140" Text="{Binding RawDefaultCombination}"/>
         </StackPanel>
 
-        <DataGrid Margin="10" MinHeight="250" MaxHeight="250"
-            CanUserSortColumns="False" ItemsSource="{Binding RawKeyMappings}">
+        <DataGrid Margin="10" MinHeight="250" MaxHeight="250" IsReadOnly="True"
+            MaxWidth="525" CanUserSortColumns="False"
+                ItemsSource="{Binding RawKeyMappings}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Target"  Binding="{Binding RawTargetCombination}"/>
-                <DataGridTextColumn Header="Replacement" Binding="{Binding RawReplacementCombination}" />
+                <DataGridTextColumn Width="2*" Header="Target"
+                    Binding="{Binding RawTargetCombination}"/>
+                <DataGridTextColumn Width="2*" Header="Replacement"
+                    Binding="{Binding RawReplacementCombination}" />
+                <DataGridTemplateColumn Width="1*" Header="Actions">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button HorizontalAlignment="Center"
+                                Content="Delete"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 
