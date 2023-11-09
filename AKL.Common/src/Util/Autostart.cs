@@ -1,4 +1,4 @@
-namespace AKL.Common;
+namespace AKL.Common.Util;
 
 using System.Runtime.Versioning;
 
