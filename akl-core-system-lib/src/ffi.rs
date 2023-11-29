@@ -19,7 +19,8 @@ use crate::{
 #[repr(C)]
 pub struct AklContext;
 
-/// Convenience function to get a mutable reference from a raw context.
+/// Convenience function to get a mutable reference from a raw context if it
+/// isn't a null pointer.
 ///
 /// # Safety
 ///
@@ -31,8 +32,12 @@ pub struct AklContext;
 #[inline(always)]
 fn akl_from_raw<'arbitrary>(
     raw: *mut AklContext,
-) -> &'arbitrary mut AnotherKeyboardLayer {
-    unsafe { &mut *raw.cast::<AnotherKeyboardLayer>() }
+) -> Option<&'arbitrary mut AnotherKeyboardLayer> {
+    if raw.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *raw.cast::<AnotherKeyboardLayer>() })
+    }
 }
 
 /// A ffi safe representation of a [`key`](crate::Key) which is used to transfer
@@ -164,7 +169,11 @@ impl FfiResult {
 /// called for each created error message.
 #[no_mangle]
 pub extern "C" fn destroy_error_message(error_message: *mut i8) {
-    let _ = unsafe { std::ffi::CString::from_raw(error_message) };
+    if error_message.is_null() {
+        return;
+    }
+
+    drop(unsafe { std::ffi::CString::from_raw(error_message) });
 }
 
 /// Allocates an akl context which can further be used to setup and start
@@ -180,8 +189,11 @@ pub extern "C" fn init() -> *mut AklContext {
 /// will be run and thus deactivate another keyboard layer.
 #[no_mangle]
 pub extern "C" fn destroy(raw_context: *mut AklContext) {
-    let _ =
-        unsafe { Box::from_raw(raw_context.cast::<AnotherKeyboardLayer>()) };
+    if raw_context.is_null() {
+        return;
+    }
+
+    drop(unsafe { Box::from_raw(raw_context.cast::<AnotherKeyboardLayer>()) });
 }
 
 /// Tries to start another keyboard layer. Fails if the switch key wasn't set
@@ -189,7 +201,11 @@ pub extern "C" fn destroy(raw_context: *mut AklContext) {
 /// [start](crate::AnotherKeyboardLayer::start)-method of `AnotherKeyboardLayer`.
 #[no_mangle]
 pub extern "C" fn start(raw_context: *mut AklContext) -> FfiResult {
-    let akl = akl_from_raw(raw_context);
+    let Some(akl) = akl_from_raw(raw_context) else {
+        return FfiResult::error(
+            "Can't operate on a null pointer. See init method",
+        );
+    };
 
     let result = akl.start();
 
@@ -204,7 +220,11 @@ pub extern "C" fn start(raw_context: *mut AklContext) -> FfiResult {
 /// running.
 #[no_mangle]
 pub extern "C" fn stop(raw_context: *mut AklContext) -> FfiResult {
-    let akl = akl_from_raw(raw_context);
+    let Some(akl) = akl_from_raw(raw_context) else {
+        return FfiResult::error(
+            "Can't operate on a null pointer. See init method",
+        );
+    };
 
     let result = akl.stop();
 
@@ -218,7 +238,11 @@ pub extern "C" fn stop(raw_context: *mut AklContext) -> FfiResult {
 /// Check if the virtual layer is running.
 #[no_mangle]
 pub extern "C" fn is_running(raw_context: *mut AklContext) -> bool {
-    akl_from_raw(raw_context).is_running()
+    if let Some(akl) = akl_from_raw(raw_context) {
+        akl.is_running()
+    } else {
+        false
+    }
 }
 
 /// Tries to set the switch key. Fails if the key [kind](FfiKeyKind) is `None`.
@@ -227,11 +251,16 @@ pub extern "C" fn set_switch_key(
     raw_context: *mut AklContext,
     new_key: FfiKey,
 ) -> FfiResult {
+    let Some(akl) = akl_from_raw(raw_context) else {
+        return FfiResult::error(
+            "Can't operate on a null pointer. See init method",
+        );
+    };
+
     if new_key.kind == FfiKeyKind::None {
         return FfiResult::error("Can't set switch key to none.");
     }
 
-    let akl = akl_from_raw(raw_context);
     let parsed_key: Result<Key, _> = new_key.try_into();
 
     if let Ok(key) = parsed_key {
@@ -249,7 +278,10 @@ pub extern "C" fn set_default_combination(
     raw_context: *mut AklContext,
     key_combination: FfiKeyCombination,
 ) {
-    let akl = akl_from_raw(raw_context);
+    let Some(akl) = akl_from_raw(raw_context) else {
+        return;
+    };
+
     let parsed_combination: Result<KeyCombination, _> =
         key_combination.try_into();
 
@@ -268,6 +300,12 @@ pub extern "C" fn add_mapping(
     target: FfiKeyCombination,
     replacement: FfiKeyCombination,
 ) -> FfiResult {
+    let Some(akl) = akl_from_raw(raw_context) else {
+        return FfiResult::error(
+            "Can't operate on a null pointer. See init method",
+        );
+    };
+
     let (target, replacement) = {
         let target = target.try_into();
 
@@ -286,7 +324,6 @@ pub extern "C" fn add_mapping(
         (target.unwrap(), replacement.unwrap())
     };
 
-    let akl = akl_from_raw(raw_context);
     let _ = akl.configuration.mappings.insert(target, replacement);
 
     FfiResult::ok()
@@ -300,6 +337,10 @@ pub extern "C" fn remove_mapping(
     raw_context: *mut AklContext,
     target: FfiKeyCombination,
 ) -> bool {
+    let Some(akl) = akl_from_raw(raw_context) else {
+        return false;
+    };
+
     let target = {
         let target = target.try_into();
 
@@ -310,7 +351,6 @@ pub extern "C" fn remove_mapping(
         target.unwrap()
     };
 
-    let akl = akl_from_raw(raw_context);
     let previous = akl.configuration.mappings.remove(&target);
 
     previous.is_some()
@@ -319,5 +359,7 @@ pub extern "C" fn remove_mapping(
 /// Clears all mappings. Doesn't update the currently running layer.
 #[no_mangle]
 pub extern "C" fn clear_mappings(raw_context: *mut AklContext) {
-    akl_from_raw(raw_context).configuration.mappings.clear();
+    if let Some(akl) = akl_from_raw(raw_context) {
+        akl.configuration.mappings.clear();
+    }
 }
