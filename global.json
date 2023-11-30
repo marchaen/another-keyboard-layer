@@ -1,0 +1,15 @@
+{
+  /* 
+    Dotnet sdk 8 is needed for setting the akl gui assembly information such as
+    OutputType which is responsible for hiding the console window for gui apps
+    when building on a linux system.
+
+    See also these related issues:
+    - https://github.com/dotnet/runtime/issues/3828
+    - https://github.com/dotnet/core/issues/8440#issuecomment-1688474268
+  */
+  "sdk": {
+    "version": "8.0.0",
+    "rollForward": "minor"
+  }
+}

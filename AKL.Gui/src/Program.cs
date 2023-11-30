@@ -2,8 +2,6 @@
 using Avalonia.ReactiveUI;
 using System;
 
-using AKL.Common.Util;
-
 namespace AKL.Gui;
 
 class Program
@@ -15,18 +13,6 @@ class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        // The console has to be hidden manually because setting the output type
-        // to winexe in the csproj isn't supported when building from linux.
-        //
-        // Related issue and question:
-        // https://github.com/dotnet/sdk/issues/3309
-        // https://stackoverflow.com/questions/64588598/app-opens-console-window-when-being-build-with-docker
-        //
-        // Update: The fix for updating resources from linux will land in dotnet 8.0
-        // https://github.com/dotnet/runtime/issues/3828
-        // https://github.com/dotnet/core/issues/8439#issuecomment-1688474268
-        ConsoleWindowHider.Execute();
-
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
