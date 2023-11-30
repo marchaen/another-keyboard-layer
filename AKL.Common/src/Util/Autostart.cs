@@ -140,14 +140,17 @@ public class Autostart
     }
 
     /// <summary>
-    ///     Opens the
+    ///     Opens or creates the
     ///     <see href="https://learn.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys">
     ///         Run Registry Key
     ///     </see>
     ///     for the currently logged in user.
     ///
-    ///     If the key couldn't be opened an <see cref="System.Exception"/>
-    ///     with a relevant error message is thrown.
+    ///     This operation uses
+    ///     <see cref="Microsoft.Win32.RegistryKey.CreateSubKey(string, bool)"/>
+    ///     directly and doesn't handle any exceptions that it could throw e. g.
+    ///     if the user doesn't have permission to create / write or read the
+    ///     run registry key.
     /// </summary>
     /// <returns>The registry key if it could be opened.</returns>
     [SupportedOSPlatform("windows")]
@@ -156,7 +159,8 @@ public class Autostart
         // See https://stackoverflow.com/a/675347
         Microsoft.Win32.RegistryKey? autostart;
 
-        autostart = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(
+        // Creates or **opens** the autostart registry key if it doesn't exist.
+        autostart = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(
             "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true
         );
 
