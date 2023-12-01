@@ -136,7 +136,7 @@ public class Autostart
     [SupportedOSPlatform("windows")]
     public void Disable()
     {
-        OpenRegistry().DeleteValue(this.name);
+        OpenRegistry().DeleteValue(this.name, false);
     }
 
     /// <summary>
