@@ -32,22 +32,26 @@ public class AklConfigurationProvider
     /// </exception>
     public static AklConfigurationProvider LoadFromFile(FileInfo file)
     {
-        var path = file.FullName;
+        string rawConfig;
 
         if (!file.Exists)
         {
-            var assembly = Assembly.GetEntryAssembly();
-            var location = assembly?.Location;
+            // There is no need to handle any exceptions in the following code
+            // because it doesn't rely on any outside factors.
+            #pragma warning disable CS8602, CS8604
+            var assembly = Assembly.GetAssembly(typeof(AklConfigurationProvider));
+            var stream = assembly.GetManifestResourceStream(
+                    $"{assembly.GetName().Name}.default-config.toml"
+            );
 
-            if (assembly != null && !string.IsNullOrEmpty(location))
-                path = new FileInfo(location).FullName ?? ".";
-            else
-                path = ".";
-
-            path = Path.Combine(path, "default-config.toml");
+            using var streamReader = new StreamReader(stream);
+            rawConfig = streamReader.ReadToEnd();
+            #pragma warning restore CA8602, CS8604
+        } else {
+            rawConfig = File.ReadAllText(file.FullName);
         }
 
-        var provider = new AklConfigurationProvider(file, AklConfiguration.FromString(File.ReadAllText(path)));
+        var provider = new AklConfigurationProvider(file, AklConfiguration.FromString(rawConfig));
 
         if (!file.Exists)
             provider.SaveToFile();
