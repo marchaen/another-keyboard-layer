@@ -17,11 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="./default-config.toml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PublishState>Included</PublishState>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
+    <EmbeddedResource Include="./default-config.toml"/>
   </ItemGroup>
   
   <!-- 
