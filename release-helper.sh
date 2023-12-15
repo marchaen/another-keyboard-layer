@@ -8,12 +8,12 @@ set -x
 [ -d "$out_dir" ] && rm -rf "$out_dir"
 mkdir "$out_dir"
 
-echo "$version" > "$out_dir"/VERSION_INFO
-git describe --tags > "$out_dir"/BUILD_INFO
+echo "$version" >"$out_dir"/VERSION_INFO
+git describe --tags >"$out_dir"/BUILD_INFO
 cp ./LICENSE "$out_dir"
 
 ./clean-output.py
-./build-documentation.py
+./build-documentation.py with-docker
 cp ./documentation-build/README.* "$out_dir"
 
 cd ./AKL.Cli
