@@ -17,11 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="./default-config.toml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <PublishState>Included</PublishState>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-    </Content>
+    <EmbeddedResource Include="./default-config.toml"/>
   </ItemGroup>
   
   <!-- 
@@ -46,7 +42,7 @@
       <Content Include="../akl-core-system-lib/target/x86_64-pc-windows-gnu/release/*.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+          <IsAssembly>true</IsAssembly>
       </Content>
     </ItemGroup>
   </Target>
@@ -71,7 +67,7 @@
       <Content Include="../akl-core-system-lib/target/x86_64-pc-windows-gnu/debug/*.dll">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
           <PublishState>Included</PublishState>
-          <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+          <IsAssembly>true</IsAssembly>
       </Content>
       <Content Include="../akl-core-system-lib/build-win/x86_64-pc-windows-gnu/release/debug-server.exe">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

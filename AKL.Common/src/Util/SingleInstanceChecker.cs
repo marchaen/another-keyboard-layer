@@ -1,4 +1,4 @@
-namespace AKL.Common;
+namespace AKL.Common.Util;
 
 /// <summary>
 ///     Checks if another program with a specified identifier is already running
