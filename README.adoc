@@ -68,6 +68,10 @@ komplizierte Tastenkombinationen gelegt werden. Dann kann auf den Layer mit
 einer konfigurierbaren Taste wie z. B. kbd:[CapsLock] gewechselt werden, während
 diese gehalten wird. Siehe <<_features>> für mehr Details.
 
+IMPORTANT: Dieses Projekt ist archiviert, da ich eine für mich einfachere Lösung
+gefunden habe CapsLock mit Esc zu tauschen (https://github.com/microsoft/PowerToys[PowerToys Keyboard Manager])
+und ich somit keinen Use Case mehr für dieses Projekt habe.
+
 ifdef::git-host[]
 NOTE: Leider funktioniert die Anzeige von AsciiDoc-Dokumenten in **{git-host}**
 nicht wirklich gut, deshalb sollte die Dokumentation besser lokal angesehen
